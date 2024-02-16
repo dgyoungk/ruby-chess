@@ -15,7 +15,7 @@ module Retrievable
   end
 
   def moves_of_pawn
-    return [[0, 1], [-1, 1], [1, 1]]
+    return [[0, 1], [-1, 1], [1, 1], [0, 2]]
   end
 
   def moves_of_rook
@@ -32,5 +32,39 @@ module Retrievable
         pair.first.eql?(pair.last) || pair.first.eql?(-pair.last)
       end
     end
+  end
+
+  # method that houses all the unicode representation of the chess pieces
+  def black_chess_pieces
+    black_visuals = {
+      'kingblack' => "\u0020\u2654\u0020",
+      'queenblack' => "\u0020\u2655\u0020",
+      'rookblack' => "\u0020\u2656\u0020",
+      'bishopblack' => "\u0020\u2657\u0020",
+      'knightblack' => "\u0020\u2658\u0020",
+      'pawnblack' => "\u0020\u2659\u0020",
+    }
+  end
+
+  def white_chess_pieces
+    white_visuals = {
+      'kingwhite' => "\u0020\u265A\u0020",
+      'queenwhite' => "\u0020\u265B\u0020",
+      'rookwhite' => "\u0020\u265C\u0020",
+      'bishopwhite' => "\u0020\u265D\u0020",
+      'knightwhite' => "\u0020\u265E\u0020",
+      'pawnwhite' => "\u0020\u265F\u0020"
+    }
+  end
+
+  def chess_board_colors
+    square_colors = {
+      white: '255;255;255',
+      black: '0;0;0'
+    }
+  end
+
+  def empty_square
+    return "\u0020\u0020\u0020"
   end
 end
