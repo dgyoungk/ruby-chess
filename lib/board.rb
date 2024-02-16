@@ -65,7 +65,7 @@ class Board
   end
 
   def add_pawns(coords, node, color)
-    new_pawn = Pawn.new(%(#{color}pawn#{coords.last}), 'pawn', color)
+    new_pawn = Pawn.new('pawn', color, %(#{color}pawn#{coords.last}))
     node.add_occupancy(new_pawn)
   end
 
@@ -85,27 +85,27 @@ class Board
   end
 
   def add_rook(coords, node, color)
-    new_rook = Rook.new(%(#{color}rook#{coords.last}), 'rook', color)
+    new_rook = Rook.new('rook', color, %(#{color}rook#{coords.last}))
     node.add_occupancy(new_rook)
   end
 
   def add_knight(coords, node, color)
-    new_knight = Knight.new(%(#{color}knight#{coords.last}), 'knight', color)
+    new_knight = Knight.new('knight', color, %(#{color}knight#{coords.last}))
     node.add_occupancy(new_knight)
   end
 
   def add_bishop(coords, node, color)
-    new_bishop = Bishop.new(%(#{color}bishop#{coords.last}), 'bishop', color)
+    new_bishop = Bishop.new('bishop', color, %(#{color}bishop#{coords.last}))
     node.add_occupancy(new_bishop)
   end
 
   def add_queen(coords, node, color)
-    new_queen = Queen.new(%(#{color}queen#{coords.last}), 'queen', color)
+    new_queen = Queen.new('queen', color, %(#{color}queen#{coords.last}))
     node.add_occupancy(new_queen)
   end
 
   def add_king(coords, node, color)
-    new_king = King.new(%(#{color}king#{coords.last}), 'king', color)
+    new_king = King.new('king', color, %(#{color}king#{coords.last}))
     node.add_occupancy(new_king)
   end
 end
