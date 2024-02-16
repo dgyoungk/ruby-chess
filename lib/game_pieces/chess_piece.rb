@@ -6,7 +6,7 @@ class ChessPiece
 
   attr_accessor :possible_moves, :type, :color, :visual, :piece_id
 
-  def initialize(possible_moves = [], piece_id = nil, type, color)
+  def initialize(possible_moves = [], type, color, piece_id)
     self.possible_moves = possible_moves
     self.piece_id = piece_id
     self.type = type

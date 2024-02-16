@@ -3,8 +3,8 @@ require_relative 'chess_piece'
 # './lib/game_pieces/king.rb'
 class King < ChessPiece
 
-  def initialize(piece_id, type, color)
-    super(piece_id, type, color)
+  def initialize(type, color, piece_id)
+    super(type, color, piece_id)
     king_moves
     assign_icon
   end
