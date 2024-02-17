@@ -1,35 +1,28 @@
-require './lib/modules/retrievable'
-require './lib/modules/thinkable'
-
 # './lib/modules/displayable.rb'
 module Displayable
-  include Retrievable
-  include Thinkable
-
   def show_chess_board(board)
     colors = chess_board_colors
     show_top_border
     board.squares.each do |coords, node|
-      # if index is odd then display a black background
-      # if index is even then display a white background
-      print_row(coords, node, colors)
+      print_odd_row(coords, node, colors) if (coords.first).odd?
+      print_even_row(coords, node, colors) if (coords.first).even?
     end
     show_bottom_border
   end
 
-  def print_row(coords, node, colors)
-    if (coords.first).even?
-      if (coords.last).even?
-        print_square(colors[:white], node, coords)
-      else
-        print_square(colors[:black], node, coords)
-      end
-    elsif (coords.first).odd?
-      if (coords.last).even?
-        print_square(colors[:black], node, coords)
-      else
-        print_square(colors[:white], node, coords)
-      end
+  def print_odd_row(coords, node, colors)
+    if (coords.last).even?
+      print_square(colors[:black], node, coords)
+    else
+      print_square(colors[:white], node, coords)
+    end
+  end
+
+  def print_even_row(coords, node, colors)
+    if (coords.last).even?
+      print_square(colors[:white], node, coords)
+    else
+      print_square(colors[:black], node, coords)
     end
   end
 
@@ -55,8 +48,21 @@ module Displayable
 
   end
 
+  def new_player_msg
+    print %(\nPlayer username: )
+  end
+
   def rules_msg
 
+  end
+
+  def info_msg
+    puts %(Since the pieces are colored red and green)
+    puts %(Red will be white, and black will be green)
+  end
+
+  def turn_msg(name)
+    puts %(\nIt's #{name}'s turn)
   end
 
   # method to get the chess piece the player wants to move
@@ -68,9 +74,19 @@ module Displayable
 
   end
 
-  def error_msg
-
+  def winner_msg(name)
+    puts %(\n#{name} wins!!!)
   end
 
+  def error_msg
+    puts %(\nInvalid option, try again)
+  end
 
+  def replay_msg
+    print %(\nWould you like to play again? (y/n): )
+  end
+
+  def goodbye_msg
+    puts %(\nThanks for playing, till next time!)
+  end
 end
