@@ -14,4 +14,8 @@ class ChessPiece
     self.visual = nil
   end
 
+  def add_visual(visual_str)
+    self.visual = visual_str
+  end
+
 end

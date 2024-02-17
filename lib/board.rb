@@ -1,5 +1,6 @@
 require './lib/modules/retrievable.rb'
 require './lib/modules/thinkable.rb'
+require './lib/modules/displayable.rb'
 require_relative 'node'
 
 Dir["./lib/game_pieces/*.rb"].each {|file| require file }
@@ -7,6 +8,7 @@ Dir["./lib/game_pieces/*.rb"].each {|file| require file }
 class Board
   include Retrievable
   include Thinkable
+  include Displayable
 
   attr_accessor :squares
   attr_reader :coordinates, :possible_edges
@@ -15,6 +17,10 @@ class Board
     self.squares = {}
     @coordinates = board_coordinates
     @possible_edges = board_edges
+    create_board
+    attach_board_edges
+    clean_board_edges
+    occupy_board
   end
 
   def create_board
@@ -38,12 +44,16 @@ class Board
     end
   end
 
+  def clean_board_edges
+    squares.each { |coords, node| node.neighbours.uniq! }
+  end
+
   def add_edge(node1, node2)
     squares[node1].add_neighbour(squares[node2])
     squares[node2].add_neighbour(squares[node1])
   end
 
-  def add_chess_pieces
+  def occupy_board
     squares.each do |coords, node|
       case coords.first
       when 0
@@ -61,7 +71,9 @@ class Board
   end
 
   def add_blank_spot(node)
-    node.add_occupancy("\u0020\u0020\u0020")
+    blank_piece = ChessPiece.new('placeholder', 'none', 'blankspot')
+    blank_piece.add_visual(empty_square)
+    node.add_occupancy(blank_piece)
   end
 
   def add_pawns(coords, node, color)
@@ -71,11 +83,11 @@ class Board
 
   def add_ranked_pieces(coords, node, color)
     case coords.last
-    when 0 || 7
+    when 0, 7
       add_rook(coords, node, color)
-    when 1 || 6
+    when 1, 6
       add_knight(coords, node, color)
-    when 2 || 5
+    when 2, 5
       add_bishop(coords, node, color)
     when 3
       add_queen(coords, node, color)
