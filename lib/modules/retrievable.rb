@@ -9,7 +9,7 @@ module Retrievable
   end
 
   def board_coordinates
-    return (0..7).to_a.repeated_permutation(2).to_a
+    return (1..8).to_a.repeated_permutation(2).to_a
   end
 
   def moves_of_knight
@@ -22,7 +22,7 @@ module Retrievable
   end
 
   def moves_of_rook
-    base = (-6..6).to_a.repeated_permutation(2).to_a.select do |pair|
+    base = (-7..7).to_a.repeated_permutation(2).to_a.select do |pair|
       unless pair.first.eql?(pair.last)
         pair.first.zero? || pair.last.zero?
       end
@@ -30,7 +30,7 @@ module Retrievable
   end
 
   def moves_of_bishop
-    base = (-6..6).to_a.repeated_permutation(2).to_a.select do |pair|
+    base = (-7..7).to_a.repeated_permutation(2).to_a.select do |pair|
       unless pair.first.zero?
         pair.first.eql?(pair.last) || pair.first.eql?(-pair.last)
       end
@@ -66,6 +66,16 @@ module Retrievable
       black: '0;0;0',
       green: '0;255;0',
       red: '255;0;0'
+    }
+  end
+
+  def piece_initials
+    initials = {
+      'Q' => 'queen',
+      'K' => 'king',
+      'N' => 'knight',
+      'R' => 'rook',
+      'p' => 'pawn'
     }
   end
 

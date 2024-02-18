@@ -61,17 +61,20 @@ module Displayable
     puts %(Red will be white, and black will be green)
   end
 
-  def turn_msg(name)
-    puts %(\nIt's #{name}'s turn)
+  def moving_info_msg
+    puts %(To move a piece, use the following notation: (piece initial current column), (destination row/column))
+    puts %(e.g. Q3, 54 to move a queen piece at [n, 3] to [5, 4]; p2, 34 to move a pawn at [n, 2] to [3, 4])
+    puts %(Piece inital list:)
+    print %(King: K, Queen: Q, Bishop: B, Rook: R, Knight: N, Pawn: p)
   end
 
-  # method to get the chess piece the player wants to move
-  def piece_msg
-
+  def turn_msg(count)
+    puts %(Turn #{count}:)
   end
+
   # method to get the coords the player wants to move the piece to
-  def move_piece_msg
-
+  def move_msg(player)
+    print %(#{player.piece_color}'s move notation: )
   end
 
   def winner_msg(name)
