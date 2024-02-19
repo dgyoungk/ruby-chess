@@ -69,9 +69,9 @@ module Thinkable
 
   def clear_path?(move_notation, player, board)
     destination = piece_destination(move_notation)
-    board.squares.each do |coords, spot|
-      if piece_matched?(move_notation, player, coords, spot)
-        return check_path(destination, coords, board)
+    board.squares.values.each do |spot|
+      if piece_matched?(move_notation, player, spot.coords, spot)
+        return check_path(destination, spot.coords, board)
       end
     end
   end
@@ -88,6 +88,8 @@ module Thinkable
     until count.eql?(difference)
       if count.first.zero?
         count = [count.first, count.last.negative? ? count.last - 1 : count.last + 1]
+      elsif count.last.zero?
+        count = [count.first.negative? ? count.first - 1 : count.first + 1, count.last]
       else
         count = [count.first.negative? ? count.first - 1 : count.first + 1, count.last.negative? ? count.last - 1 : count.last + 1]
       end
@@ -98,7 +100,7 @@ module Thinkable
 
   # game draw condition checking
   def dead_position?(board)
-    return board.squares.filter { |coords, spot| spot.occupied_by.instance_of? ChessPiece }.size.eql?(62)
+    return board.squares.values.filter { |spot| spot.occupied_by.instance_of? ChessPiece }.size.eql?(62)
   end
 
   def stalemate?(board)
@@ -109,14 +111,14 @@ module Thinkable
 
   end
 
-  # def check?(board)
+  # def check?(board, player)
   #   # I need to get every single ranked piece e.g. Rook, Knight, Bishop, Queen
   #   # and check if a King piece is in their path AND a piece is not blocking the way
   #   # only exception is the knight, I just need to check if a king is one move away
-  #   rooks = pieces_on_board(board, 'rook')
-  #   bishops = pieces_on_board(board, 'bishop')
-  #   knights = pieces_on_board(board, 'knight')
-  #   queens = pieces_on_board(board, 'queen')
+  #   rooks = pieces_on_board(board, player, 'rook')
+  #   bishops = pieces_on_board(board, player, 'bishop')
+  #   knights = pieces_on_board(board, player, 'knight')
+  #   queens = pieces_on_board(board, player, 'queen')
   #   return rook_check?(board, rooks) || bishop_check?() || knight_check? || queen_check?
   # end
 end

@@ -98,7 +98,11 @@ module Retrievable
   end
 
   # Chess game winning condition related methods
-  def pieces_on_board(board, piece)
-    return board.squares.select { |coords, spot| spot.occupied_by.type.eql?(piece) }
+  def pieces_on_board(board, player, piece)
+    return board.squares.values.select { |spot| spot.occupied_by.type.eql?(piece) && spot.occupied_by.color.eql?(player.piece_color) }
+  end
+
+  def opponent_pieces(board, player)
+    return board.squares.values.reject { |spot| spot.occupied_by.color.eql?(player.piece_color) }
   end
 end

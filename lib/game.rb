@@ -8,7 +8,7 @@ Dir["./lib/modules/*.rb"].each {|file| require file }
 class Game
   include ChessLogic
 
-  attr_accessor :player1, :player2, :board, :game_finished, :turn, :replay
+  attr_accessor :player1, :player2, :board, :game_finished, :turn, :replay, :players
 
   attr_reader :player_colors
 
@@ -19,6 +19,7 @@ class Game
     self.game_finished = false
     self.turn = 1
     self.replay = true
+    self.players = []
     @player_colors = %w[white black]
   end
 
@@ -46,9 +47,11 @@ class Game
     if player1.nil?
       self.player1 = Player.new(username)
       player1.designate_color(player_colors.first)
+      players.push(player1)
     else
       self.player2 = Player.new(username)
       plaeyr2.designate_color(player_colors.last)
+      players.push(player1)
     end
   end
 
@@ -64,13 +67,14 @@ class Game
     until game_finished
       show_chess_board(board)
       turn_msg(turn)
-      player_moves_piece(player1)
-      player_moves_piece(player2)
-      check_game_status
+      players.each do |player|
+        move_piece(player)
+        check_game_status(player)
+      end
     end
   end
 
-  def player_moves_piece(player)
+  def move_piece(player)
     move_notation = piece_position(player).split(/,\s*/)
     until clear_path?(move_notation, player, board) || piece_type(move_notation).eql?('knight')
       error_msg
@@ -100,14 +104,14 @@ class Game
     swap_places(move_notation, spot)
   end
 
-  def check_game_status
-    if checkmate?(player1, player2)
+  def check_game_status(player)
+    if checkmate?(player)
       game_finished = true
       winner_msg
     elsif stalemate(board) || dead_position?(board)
       game_finished = true
       no_winner_msg
-    elsif check?(board)
+    elsif check?(board, player)
       chess_check_msg
     end
   end
