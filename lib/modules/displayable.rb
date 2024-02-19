@@ -27,7 +27,7 @@ module Displayable
   end
 
   def print_square(square_color, node, coords)
-    if (coords.last).eql?(7)
+    if (coords.last).eql?(8)
       puts %(#{bg_colorize(node.occupied_by.visual, square_color)})
     else
       print %(#{bg_colorize(node.occupied_by.visual, square_color)})
@@ -77,8 +77,16 @@ module Displayable
     print %(#{player.piece_color}'s move notation: )
   end
 
+  def chess_check_msg
+
+  end
+
   def winner_msg(name)
     puts %(\n#{name} wins!!!)
+  end
+
+  def no_winner_msg
+
   end
 
   def error_msg

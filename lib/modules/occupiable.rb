@@ -15,15 +15,15 @@ module Occupiable
 
   def add_ranked_pieces(coords, node, color)
     case coords.last
-    when 0, 7
+    when 1, 8
       add_rook(coords, node, color)
-    when 1, 6
+    when 2, 7
       add_knight(coords, node, color)
-    when 2, 5
+    when 3, 6
       add_bishop(coords, node, color)
-    when 3
-      add_queen(coords, node, color)
     when 4
+      add_queen(coords, node, color)
+    when 5
       add_king(coords, node, color)
     end
   end

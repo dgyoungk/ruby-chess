@@ -51,13 +51,13 @@ class Board
   def occupy_board
     squares.each do |coords, node|
       case coords.first
-      when 0
-        add_ranked_pieces(coords, node, 'black')
       when 1
+        add_ranked_pieces(coords, node, 'black')
+      when 2
         add_pawns(coords, node, 'black')
-      when 6
-        add_pawns(coords, node, 'white')
       when 7
+        add_pawns(coords, node, 'white')
+      when 8
         add_ranked_pieces(coords, node, 'white')
       else
         add_blank_spot(node)
