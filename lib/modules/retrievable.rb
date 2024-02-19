@@ -3,6 +3,7 @@ require_relative 'thinkable'
 # './lib/modules/retrievable.rb'
 module Retrievable
   include Thinkable
+  # Chess board and Chess piece methods
   # the reject block removes the [0,0] move since it's redundant
   def board_edges
     return (-1..1).to_a.repeated_permutation(2).to_a.reject { |move| move.all? { |coord| coord.zero?} }
@@ -37,6 +38,10 @@ module Retrievable
     end
   end
 
+  def empty_square
+    return "\s\s\s"
+  end
+
   # method that houses all the unicode representation of the chess pieces
   def black_chess_pieces
     black_visuals = {
@@ -69,6 +74,7 @@ module Retrievable
     }
   end
 
+  # Chess gameplay related methods
   def piece_initials
     initials = {
       'Q' => 'queen',
@@ -79,7 +85,20 @@ module Retrievable
     }
   end
 
-  def empty_square
-    return "\s\s\s"
+  def piece_type(move_notation)
+    return piece_initials[move_notation.first.chars.first]
+  end
+
+  def piece_destination(move_notation)
+    return move_notation.last.chars.map(&:to_i)
+  end
+
+  def piece_column(move_notation)
+    return move_notation.first.chars.last.to_i
+  end
+
+  # Chess game winning condition related methods
+  def pieces_on_board(board, piece)
+    return board.squares.select { |coords, spot| spot.occupied_by.type.eql?(piece) }
   end
 end

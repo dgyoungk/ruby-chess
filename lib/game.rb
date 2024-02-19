@@ -72,15 +72,21 @@ class Game
 
   def player_moves_piece(player)
     move_notation = piece_position(player).split(/,\s*/)
-    if empty_spot?(move_notation)
-      update_piece_position(move_notation, player)
-    else
-      capture_piece(move_notation, player)
+    until clear_path?(move_notation, player, board) || piece_type(move_notation).eql?('knight')
+      error_msg
+      move_notation = piece_position(player).split(/,\s*/)
     end
+    update_piece_position(move_notation, player)
   end
 
-  def empty_spot?(move_notation)
-    return board.squares[piece_destination(move_notation)].occupied_by.instance_of? ChessPiece
+  def update_piece_position(move_notation, player)
+    board.squares.each do |coords, spot|
+      if piece_matched?(move_notation, player, coords, spot)
+        empty_spot?(piece_destination(move_notation), board) ? swap_places(move_notation, spot) : capture_piece(move_notation, player, spot)
+        # capture_piece(move_notation, player, spot) unless empty_spot?(move_notation)
+        # swap_places(move_notation, spot) if empty_spot?(move_notation)
+      end
+    end
   end
 
   def swap_places(move_notation, spot)
@@ -94,35 +100,17 @@ class Game
     swap_places(move_notation, spot)
   end
 
-  def update_piece_position(move_notation, player)
-    board.squares.each do |coords, spot|
-      if piece_matched?(move_notation, player, coords, spot)
-        # empty_spot?(move_notation) ? swap_places(move_notation, spot) : capture_piece(move_notation, player, spot)
-        unless empty_spot?(move_notation)
-          capture_piece(move_notation, player, spot)
-        end
-        swap_places(move_notation.spot)
-        # if empty_spot?(move_notation)
-        #   swap_places(move_notation, spot)
-        # else
-        #   capture_piece(move_notation, player, spot)
-        # end
-      end
-    end
-  end
-
   def check_game_status
-    if check?(board)
-      chess_check_msg
-    elsif checkmate?(player1, player2)
+    if checkmate?(player1, player2)
       game_finished = true
       winner_msg
-    elsif stalemate(board) || dead_position(board)
+    elsif stalemate(board) || dead_position?(board)
       game_finished = true
       no_winner_msg
+    elsif check?(board)
+      chess_check_msg
     end
   end
-
 
   def prompt_replay
     replay_choice = user_decision
