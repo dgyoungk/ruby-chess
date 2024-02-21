@@ -78,6 +78,7 @@ module Retrievable
   def piece_initials
     initials = {
       'Q' => 'queen',
+      'B' => 'bishop',
       'K' => 'king',
       'N' => 'knight',
       'R' => 'rook',
@@ -105,4 +106,6 @@ module Retrievable
   def opponent_pieces(board, player)
     return board.squares.values.reject { |spot| spot.occupied_by.color.eql?(player.piece_color) }
   end
+
+
 end

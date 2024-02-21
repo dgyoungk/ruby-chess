@@ -77,25 +77,33 @@ module Thinkable
   end
 
   def check_path(destination, starting, board, difference = [], count = [])
-    difference.push(destination.first - starting.first)
-    difference.push(destination.last - starting.last)
-    difference.first.zero? ? count.push(0) : coords.first.negative? ? count.push(-1) : count.push(1)
-    difference.last.zero? ? count.push(0) : coords.last.negative? ? count.push(-1) : count.push(1)
-    return check_empty_spots(difference, count).all?(true)
+    if difference.empty?
+      difference.push(destination.first - starting.first)
+      difference.push(destination.last - starting.last)
+    end
+    difference.first.zero? ? count.push(0) : difference.first.negative? ? count.push(-1) : count.push(1)
+    difference.last.zero? ? count.push(0) : difference.last.negative? ? count.push(-1) : count.push(1)
+    path_results = check_empty_spots(difference, count, board, starting)
+    path_results.empty? ? false : path_results.all?(true)
   end
 
-  def check_empty_spots(difference, count, board, results = [])
+  def check_empty_spots(difference, count, board, starting, results = [])
     until count.eql?(difference)
-      if count.first.zero?
-        count = [count.first, count.last.negative? ? count.last - 1 : count.last + 1]
-      elsif count.last.zero?
-        count = [count.first.negative? ? count.first - 1 : count.first + 1, count.last]
-      else
-        count = [count.first.negative? ? count.first - 1 : count.first + 1, count.last.negative? ? count.last - 1 : count.last + 1]
-      end
-      results.push(empty_spot?(count, board))
+      results.push(empty_spot?(board, [starting.first + count.first, starting.last + count.last]))
+      count = update_count(count)
     end
     results
+  end
+
+  def update_count(count)
+    if count.first.zero?
+      count[-1] = count.last.negative? ? count.last - 1 : count.last + 1
+    elsif count.last.zero?
+      count[0] = count.first.negative? ? count.first - 1 : count.first + 1
+    else
+      count = [count.first.negative? ? count.first - 1 : count.first + 1, count.last.negative? ? count.last - 1 : count.last + 1]
+    end
+    count
   end
 
   # game draw condition checking
@@ -111,14 +119,59 @@ module Thinkable
 
   end
 
-  # def check?(board, player)
-  #   # I need to get every single ranked piece e.g. Rook, Knight, Bishop, Queen
-  #   # and check if a King piece is in their path AND a piece is not blocking the way
-  #   # only exception is the knight, I just need to check if a king is one move away
-  #   rooks = pieces_on_board(board, player, 'rook')
-  #   bishops = pieces_on_board(board, player, 'bishop')
-  #   knights = pieces_on_board(board, player, 'knight')
-  #   queens = pieces_on_board(board, player, 'queen')
-  #   return rook_check?(board, rooks) || bishop_check?() || knight_check? || queen_check?
-  # end
+  def check?(board, player)
+    # I need to get every single ranked piece e.g. Rook, Knight, Bishop, Queen
+    # and check if a King piece is in their path AND a piece is not blocking the way
+    # only exception is the knight, I just need to check if a king is one move away
+    # so 2 methods, one for the knight piece and another for the non-knight pieces
+    pieces_to_check = piece_initials.values.reject { |type| type.eql?('pawn') || type.eql?('king')  }
+    # each element in types will be an array of nodes that contain pieces
+    types = pieces_to_check.each_with_object({}) { |type, hash| hash[type] = pieces_on_board(board, player, type) }
+    results = types.each_with_object([]) do |(key, pieces), arr|
+      arr.push(piece_check(board, key, pieces))
+      arr
+    end
+    return results.any?(true)
+  end
+
+  def piece_check(board, key, pieces)
+    # let's have this as the general check method and delegate to knight/non-knight pieces here
+    # the concern is returning the results
+    if key.eql('knight')
+      status = pieces.each_with_object([]) { |piece, arr| arr.push(knight_check(board, piece)) }
+    else
+      status = pieces.each_with_object([]) { |piece, arr| arr.push(non_knight_check(board, piece)) }
+    end
+    return status.any?(true)
+  end
+
+  def non_knight_check(board, piece)
+    results = valid_moves(board, piece).each_with_object([]) do |pair, arr|
+      temp_dest = [piece.coords.first + pair.first, piece.coords.last + pair.last]
+      temp_piece = board.squares[temp_dest].occupied_by
+      arr.push(true) if temp_piece.type.eql?('king') && !temp_piece.color.eql?(piece.occupied_by.color)
+      arr
+    end
+    return results.any?(true)
+  end
+
+  def knight_check(board, piece)
+    results = piece.occupied_by.possible_moves.each_with_object([]) do |pair, arr|
+      temp_dest = [piece.coords.first + pair.first, piece.coords.last + pair.last]
+      next if board.squares[temp_dest].nil?
+      temp_piece = board.squares[temp_dest].occupied_by
+      arr.push(true) if temp_piece.type.eql?('king') && !temp_piece.color.eql?(piece.occupied_by.color)
+      arr
+    end
+    return results.any?(true)
+  end
+
+  def valid_moves(board, spot)
+    # I want to select a piece's moves that are legal(stays on the board) and will not collide with other pieces(blank spot)
+    valids = spot.occupied_by.possible_moves.select do |pair|
+      temp_move = [spot.coords.first + pair.first, spot.coords.last + pair.last]
+      next if board.squares[temp_move].nil?
+      check_path(temp_move, spot.coords, board, pair)
+    end
+  end
 end
