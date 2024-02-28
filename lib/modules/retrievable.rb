@@ -106,6 +106,4 @@ module Retrievable
   def opponent_pieces(board, player)
     return board.squares.values.reject { |spot| spot.occupied_by.color.eql?(player.piece_color) }
   end
-
-
 end

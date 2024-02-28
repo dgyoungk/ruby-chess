@@ -46,8 +46,8 @@ module Thinkable
     return pure_info.slice(1..).chars.all? { |info| info < '8' }
   end
 
-  def piece_matched?(move_notation, player, coords, spot)
-    return column_match?(coords, move_notation) && type_match?(spot, move_notation) && color_match?(spot, player)
+  def piece_matched?(move_notation, player, spot)
+    return column_match?(spot.coords, move_notation) && type_match?(spot, move_notation) && color_match?(spot, player)
   end
 
   def column_match?(coords, move_notation)
@@ -70,7 +70,7 @@ module Thinkable
   def clear_path?(move_notation, player, board)
     destination = piece_destination(move_notation)
     board.squares.values.each do |spot|
-      if piece_matched?(move_notation, player, spot.coords, spot)
+      if piece_matched?(move_notation, player, spot)
         return check_path(destination, spot.coords, board)
       end
     end
@@ -89,7 +89,7 @@ module Thinkable
 
   def check_empty_spots(difference, count, board, starting, results = [])
     until count.eql?(difference)
-      results.push(empty_spot?(board, [starting.first + count.first, starting.last + count.last]))
+      results.push(empty_spot?([starting.first + count.first, starting.last + count.last], board))
       count = update_count(count)
     end
     results
@@ -124,7 +124,7 @@ module Thinkable
     # and check if a King piece is in their path AND a piece is not blocking the way
     # only exception is the knight, I just need to check if a king is one move away
     # so 2 methods, one for the knight piece and another for the non-knight pieces
-    pieces_to_check = piece_initials.values.reject { |type| type.eql?('pawn') || type.eql?('king')  }
+    pieces_to_check = piece_initials.values.reject { |type| type.eql?('king')  }
     # each element in types will be an array of nodes that contain pieces
     types = pieces_to_check.each_with_object({}) { |type, hash| hash[type] = pieces_on_board(board, player, type) }
     results = types.each_with_object([]) do |(key, pieces), arr|
@@ -137,8 +137,10 @@ module Thinkable
   def piece_check(board, key, pieces)
     # let's have this as the general check method and delegate to knight/non-knight pieces here
     # the concern is returning the results
-    if key.eql('knight')
+    if key.eql?('knight')
       status = pieces.each_with_object([]) { |piece, arr| arr.push(knight_check(board, piece)) }
+    elsif key.eql?('pawn')
+      status = pieces.each_with_object([]) { |piece, arr| arr.push(pawn_check(board, piece)) }
     else
       status = pieces.each_with_object([]) { |piece, arr| arr.push(non_knight_check(board, piece)) }
     end
@@ -151,6 +153,17 @@ module Thinkable
       temp_piece = board.squares[temp_dest].occupied_by
       arr.push(true) if temp_piece.type.eql?('king') && !temp_piece.color.eql?(piece.occupied_by.color)
       arr
+    end
+    return results.any?(true)
+  end
+
+  def pawn_check(board, piece)
+    capturing_move = piece.occupied_by.possible_moves.reject { |pair| pair.include?(0) }
+    results = capturing_move.each_with_object([]) do |pair, arr|
+      temp_dest = [piece.coords.first + pair.first, piece.coords.last + pair.last]
+      next if board[temp_dest].nil?
+      temp_piece = board[temp_dest].occupied_by
+      temp_piece.type.eql?('king') && !temp_piece.color.eql?(piece.occupied_by.color) ? arr.push(true) : arr.push(false)
     end
     return results.any?(true)
   end
