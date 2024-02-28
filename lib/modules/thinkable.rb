@@ -101,7 +101,10 @@ module Thinkable
     elsif count.last.zero?
       count[0] = count.first.negative? ? count.first - 1 : count.first + 1
     else
-      count = [count.first.negative? ? count.first - 1 : count.first + 1, count.last.negative? ? count.last - 1 : count.last + 1]
+      count.clear
+      count.push(count.first.negative? ? count.first - 1 : count.first + 1)
+      count.push(count.last.negative? ? count.last - 1 : count.last + 1)
+      # count = [count.first.negative? ? count.first - 1 : count.first + 1, count.last.negative? ? count.last - 1 : count.last + 1]
     end
     count
   end
@@ -111,12 +114,35 @@ module Thinkable
     return board.squares.values.filter { |spot| spot.occupied_by.instance_of? ChessPiece }.size.eql?(62)
   end
 
-  def stalemate?(board)
-
+  def stalemate?(board, player)
+    not_checking = %w(king pawn)
+    opp = opponent_pieces(board, player, not_checking)
+    king_piece = player_king_piece(board, player)
+    return false if king_moves.empty?
+    king_overlapping(board, king_piece, opp).all?(true)
   end
 
-  def checkmate?(player1, player2)
+  def king_overlapping(board, king_piece, opp)
+    stales = []
+    valid_moves(board, king_piece).each_with_index do |king_pair, idx|
+      king_temp_dest = [king_piece.coords.first + king_pair.first, king_piece.coords.last + king_pair.last]
+      stales.push(overlapping_pieces(king_temp_dest, opp[idx], board))
+    end
+    stales
+  end
 
+  def overlapping_pieces(king_temp_dest, opp_piece, board)
+    opp_moves = valid_moves(board, opp_piece)
+    return false if opp_moves.empty?
+    results = opp_moves.each_with_object([]) do |opp_pair, arr|
+      opp_temp_dest = [opp_piece.coords.first + opp_pair.first, opp_piece.coords.last + opp_pair.last]
+      king_temp_dest.eql?(opp_temp_dest) ? arr.push(true) : next
+    end
+    results.any?(true)
+  end
+
+  def checkmate?(board, player)
+    return check?(board, player) && stalemate?(board, player)
   end
 
   def check?(board, player)

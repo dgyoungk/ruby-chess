@@ -108,7 +108,7 @@ class Game
     if checkmate?(player)
       game_finished = true
       winner_msg
-    elsif stalemate(board) || dead_position?(board)
+    elsif stalemate(board, player) || dead_position?(board)
       game_finished = true
       no_winner_msg
     elsif check?(board, player)

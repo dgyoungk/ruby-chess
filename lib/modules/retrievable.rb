@@ -100,10 +100,24 @@ module Retrievable
 
   # Chess game winning condition related methods
   def pieces_on_board(board, player, piece)
-    return board.squares.values.select { |spot| spot.occupied_by.type.eql?(piece) && spot.occupied_by.color.eql?(player.piece_color) }
+    return board.squares.values.select do |spot|
+      temp = spot.occupied_by
+      temp.type.eql?(piece) && temp.color.eql?(player.piece_color)
+    end
   end
 
-  def opponent_pieces(board, player)
-    return board.squares.values.reject { |spot| spot.occupied_by.color.eql?(player.piece_color) }
+  def player_king_piece(board, player)
+    majesty = board.squares.values.select do |spot|
+      temp = spot.occupied_by
+      temp.type.eql?('king') && temp.color.eql?(player.piece_color)
+    end
+    return majesty.first
+  end
+
+  def opponent_pieces(board, player, ineligs)
+    other_color = board.squares.values.reject do |spot|
+      piece = spot.occupied_by
+      ineligs.include?(piece.type) || piece.color.eql?(player.piece_color) || piece.instance_of?(ChessPiece)
+    end
   end
 end
