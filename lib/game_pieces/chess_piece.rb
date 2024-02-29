@@ -4,9 +4,9 @@ require './lib/modules/retrievable.rb'
 class ChessPiece
   include Retrievable
 
-  attr_accessor :possible_moves, :type, :color, :visual, :piece_id
+  attr_accessor :possible_moves, :type, :color, :visual
 
-  def initialize(possible_moves = [], type, color, piece_id)
+  def initialize(possible_moves = [], type, color)
     self.possible_moves = possible_moves
     self.piece_id = piece_id
     self.type = type
