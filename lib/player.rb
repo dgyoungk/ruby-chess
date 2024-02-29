@@ -4,6 +4,7 @@ class Player
 
   def initialize(name)
     self.name = name
+    self.captured = []
   end
 
   def designate_color(color)
@@ -12,5 +13,9 @@ class Player
 
   def update_captured(piece)
     self.captured.push(piece)
+  end
+
+  def reset_captured
+    self.captured = []
   end
 end

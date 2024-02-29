@@ -25,7 +25,7 @@ class Game
 
   def game_setup
     welcome_msg
-    2.times { create_player }
+    2.times { |n| create_player(n) }
     rules_msg
     info_msg
     moving_info_msg
@@ -36,8 +36,12 @@ class Game
     return replay
   end
 
-  def create_player
-    new_player_msg
+  def game_over?
+    return game_finished
+  end
+
+  def create_player(count)
+    new_player_msg(count)
     p_name = gets.chomp
     assign_player(p_name)
   end
@@ -48,10 +52,12 @@ class Game
       self.player1 = Player.new(username)
       player1.designate_color(player_colors.first)
       players.push(player1)
+      player_created_msg(player1)
     else
       self.player2 = Player.new(username)
       plaeyr2.designate_color(player_colors.last)
-      players.push(player1)
+      players.push(player2)
+      player_created_msg(player2)
     end
   end
 
@@ -64,13 +70,14 @@ class Game
   end
 
   def play_once
-    until game_finished
+    until game_over?
       show_chess_board(board)
       turn_msg(turn)
       players.each do |player|
         move_piece(player)
         check_game_status(player)
       end
+      self.turn += 1
     end
   end
 
@@ -84,8 +91,8 @@ class Game
   end
 
   def update_piece_position(move_notation, player)
-    board.squares.each do |coords, spot|
-      if piece_matched?(move_notation, player, coords, spot)
+    board.squares.values.each do |spot|
+      if piece_matched?(move_notation, player, spot)
         empty_spot?(piece_destination(move_notation), board) ? swap_places(move_notation, spot) : capture_piece(move_notation, player, spot)
         # capture_piece(move_notation, player, spot) unless empty_spot?(move_notation)
         # swap_places(move_notation, spot) if empty_spot?(move_notation)
@@ -107,12 +114,12 @@ class Game
   def check_game_status(player)
     if checkmate?(player)
       game_finished = true
-      winner_msg
+      winner_msg(player.name)
     elsif stalemate(board, player) || dead_position?(board)
       game_finished = true
       no_winner_msg
     elsif check?(board, player)
-      chess_check_msg
+      chess_check_msg(player)
     end
   end
 
@@ -128,6 +135,8 @@ class Game
   def game_reset
     self.game_finished = false
     self.turn = 1
+    players.each { |player| player.reset_captured }
+    self.board.occupy_board
   end
 end
 

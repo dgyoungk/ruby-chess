@@ -111,14 +111,13 @@ module Thinkable
 
   # game draw condition checking
   def dead_position?(board)
-    return board.squares.values.filter { |spot| spot.occupied_by.instance_of? ChessPiece }.size.eql?(62)
+    return board.squares.values.select { |spot| spot.occupied_by.instance_of? ChessPiece }.size.eql?(62)
   end
 
   def stalemate?(board, player)
     not_checking = %w(king pawn)
     opp = opponent_pieces(board, player, not_checking)
     king_piece = player_king_piece(board, player)
-    return false if king_moves.empty?
     king_overlapping(board, king_piece, opp).all?(true)
   end
 

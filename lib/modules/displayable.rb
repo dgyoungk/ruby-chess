@@ -45,15 +45,23 @@ module Displayable
   end
 
   def welcome_msg
-
+    puts %(\t\tRuby Chess\nOutsmart your opponents and show your wits!)
   end
 
-  def new_player_msg
-    print %(\nPlayer username: )
+  def new_player_msg(count)
+    print %(\nPlayer #{count + 1} username: )
+  end
+
+  def player_created_msg(player)
+    puts %(New player created: #{player.name}, piece color: #{player.piece_color})
   end
 
   def rules_msg
-
+    puts %(\nThe rules are pretty straight forward:)
+    puts %(Corner the opponent's king piece to get a checkmate!)
+    puts %(All pieces except the Knight piece cannot move over other pieces)
+    puts %(You can only move one piece per turn)
+    puts %(Let the games begin!!!)
   end
 
   def info_msg
@@ -62,7 +70,7 @@ module Displayable
   end
 
   def moving_info_msg
-    puts %(To move a piece, use the following notation: (piece initial current column), (destination row/column))
+    puts %(To move a piece, use the following notation: (piece initial, current column), (destination row/column))
     puts %(e.g. Q3, 54 to move a queen piece at [n, 3] to [5, 4]; p2, 34 to move a pawn at [n, 2] to [3, 4])
     puts %(Piece inital list:)
     print %(King: K, Queen: Q, Bishop: B, Rook: R, Knight: N, Pawn: p)
@@ -77,16 +85,16 @@ module Displayable
     print %(#{player.piece_color}'s move notation: )
   end
 
-  def chess_check_msg
-
+  def chess_check_msg(player)
+    puts %(\n#{player.name} declares check on the King)
   end
 
   def winner_msg(name)
-    puts %(\n#{name} wins!!!)
+    puts %(\nCheckmate, #{name} wins!!!)
   end
 
   def no_winner_msg
-
+    puts %(\nThe game has come to a draw)
   end
 
   def error_msg
