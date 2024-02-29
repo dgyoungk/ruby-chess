@@ -26,9 +26,11 @@ class Game
   def game_setup
     welcome_msg
     2.times { |n| create_player(n) }
+    # sleep(1)
     rules_msg
+    # sleep(3)
     info_msg
-    moving_info_msg
+    # sleep(3)
     start_game
   end
 
@@ -55,7 +57,7 @@ class Game
       player_created_msg(player1)
     else
       self.player2 = Player.new(username)
-      plaeyr2.designate_color(player_colors.last)
+      player2.designate_color(player_colors.last)
       players.push(player2)
       player_created_msg(player2)
     end
@@ -72,6 +74,7 @@ class Game
   def play_once
     until game_over?
       show_chess_board(board)
+      moving_info_msg
       turn_msg(turn)
       players.each do |player|
         move_piece(player)
@@ -83,11 +86,15 @@ class Game
 
   def move_piece(player)
     move_notation = piece_position(player).split(/,\s*/)
-    until clear_path?(move_notation, player, board) || piece_type(move_notation).eql?('knight')
-      error_msg
-      move_notation = piece_position(player).split(/,\s*/)
+    if piece_type(move_notation).eql?('knight')
+      update_piece_position(move_notation, player)
+    else
+      until clear_path?(move_notation, player, board)
+        invalid_move_msg
+        move_notation = piece_position(player).split(/,\s*/)
+      end
+      update_piece_position(move_notation, player)
     end
-    update_piece_position(move_notation, player)
   end
 
   def update_piece_position(move_notation, player)
@@ -112,10 +119,10 @@ class Game
   end
 
   def check_game_status(player)
-    if checkmate?(player)
+    if checkmate?(board, player)
       game_finished = true
       winner_msg(player.name)
-    elsif stalemate(board, player) || dead_position?(board)
+    elsif stalemate?(board, player) || dead_position?(board)
       game_finished = true
       no_winner_msg
     elsif check?(board, player)

@@ -8,7 +8,6 @@ class ChessPiece
 
   def initialize(possible_moves = [], type, color)
     self.possible_moves = possible_moves
-    self.piece_id = piece_id
     self.type = type
     self.color = color
     self.visual = nil

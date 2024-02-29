@@ -46,11 +46,11 @@ module Thinkable
   end
 
   def type_match?(spot, move_notation)
-    return spot.occupied_by.type == piece_type(move_notation)
+    return spot.occupied_by.type.eql?(piece_type(move_notation))
   end
 
   def color_match?(spot, player)
-    return spot.occupied_by.color == player.piece_color
+    return spot.occupied_by.color.eql?(player.piece_color)
   end
 
   # methods that help chess pieces make a legal move i.e. checking moving path
@@ -62,25 +62,43 @@ module Thinkable
     destination = piece_destination(move_notation)
     board.squares.values.each do |spot|
       if piece_matched?(move_notation, player, spot)
-        return check_path(destination, spot.coords, board)
+        return check_path(destination, spot, board)
       end
     end
   end
 
-  def check_path(destination, starting, board, difference = [], count = [])
+  def check_path(destination, spot, board, difference = [])
+    # let's say the current coords is 7, 2 and destination is 6, 2
     if difference.empty?
-      difference.push(destination.first - starting.first)
-      difference.push(destination.last - starting.last)
+      difference.push(destination.first - spot.coords.first)
+      difference.push(destination.last - spot.coords.last)
     end
-    difference.first.zero? ? count.push(0) : difference.first.negative? ? count.push(-1) : count.push(1)
-    difference.last.zero? ? count.push(0) : difference.last.negative? ? count.push(-1) : count.push(1)
-    path_results = check_empty_spots(difference, count, board, starting)
+    return false if !spot.occupied_by.possible_moves.include?(difference)
+    count = create_count(difference)
+    path_results = check_empty_spots(difference, count, board, spot.coords)
     path_results.empty? ? false : path_results.all?(true)
   end
 
+  def create_count(difference, count = [])
+    if difference.first.zero?
+      count = [0, difference.last.negative? ? -1 : 1]
+    elsif difference.last.zero?
+      count = [difference.first.negative? ? -1 : 1, 0]
+    else
+      count.push(difference.first.negative? ? -1 : 1)
+      count.push(difference.last.negative? ? -1 : 1)
+    end
+    count
+  end
+
   def check_empty_spots(difference, count, board, starting, results = [])
+    temp_coords = [starting.first + count.first, starting.last + count.last]
+    if count.eql?(difference) && empty_spot?(temp_coords, board)
+      results.push(true)
+      return results
+    end
     until count.eql?(difference)
-      results.push(empty_spot?([starting.first + count.first, starting.last + count.last], board))
+      results.push(empty_spot?(temp_coords, board))
       count = update_count(count)
     end
     results
@@ -92,10 +110,7 @@ module Thinkable
     elsif count.last.zero?
       count[0] = count.first.negative? ? count.first - 1 : count.first + 1
     else
-      count.clear
-      count.push(count.first.negative? ? count.first - 1 : count.first + 1)
-      count.push(count.last.negative? ? count.last - 1 : count.last + 1)
-      # count = [count.first.negative? ? count.first - 1 : count.first + 1, count.last.negative? ? count.last - 1 : count.last + 1]
+      count = [count.first.negative? ? count.first - 1 : count.first + 1, count.last.negative? ? count.last - 1 : count.last + 1]
     end
     count
   end
@@ -135,32 +150,31 @@ module Thinkable
     return check?(board, player) && stalemate?(board, player)
   end
 
-  def check?(board, player)
+  def check?(board, player, results = [])
     # I need to get every single ranked piece e.g. Rook, Knight, Bishop, Queen
     # and check if a King piece is in their path AND a piece is not blocking the way
     # only exception is the knight, I just need to check if a king is one move away
     # so 2 methods, one for the knight piece and another for the non-knight pieces
-    pieces_to_check = piece_initials.values.reject { |type| type.eql?('king')  }
+    checking_pieces = piece_initials.values.reject { |type| type.eql?('king')  }
     # each element in types will be an array of nodes that contain pieces
-    types = pieces_to_check.each_with_object({}) { |type, hash| hash[type] = pieces_on_board(board, player, type) }
-    results = types.each_with_object([]) do |(key, pieces), arr|
-      arr.push(piece_check(board, key, pieces))
-      arr
+    checking_pieces.each do |type|
+      pieces = pieces_on_board(board, player, type)
+      results = pieces.each_with_object([]) { |spot, arr| arr.push(piece_check(board, spot)) }
     end
     return results.any?(true)
   end
 
-  def piece_check(board, key, pieces)
+  def piece_check(board, piece)
     # let's have this as the general check method and delegate to knight/non-knight pieces here
     # the concern is returning the results
-    if key.eql?('knight')
-      status = pieces.each_with_object([]) { |piece, arr| arr.push(knight_check(board, piece)) }
-    elsif key.eql?('pawn')
-      status = pieces.each_with_object([]) { |piece, arr| arr.push(pawn_check(board, piece)) }
+    case piece.occupied_by.type
+    when 'knight'
+      return knight_check(board, piece)
+    when 'pawn'
+      return pawn_check(board, piece)
     else
-      status = pieces.each_with_object([]) { |piece, arr| arr.push(non_knight_check(board, piece)) }
+      return non_knight_check(board, piece)
     end
-    return status.any?(true)
   end
 
   def non_knight_check(board, piece)
@@ -177,8 +191,8 @@ module Thinkable
     capturing_move = piece.occupied_by.possible_moves.reject { |pair| pair.include?(0) }
     results = capturing_move.each_with_object([]) do |pair, arr|
       temp_dest = [piece.coords.first + pair.first, piece.coords.last + pair.last]
-      next if board[temp_dest].nil?
-      temp_piece = board[temp_dest].occupied_by
+      next if board.squares[temp_dest].nil?
+      temp_piece = board.squares[temp_dest].occupied_by
       temp_piece.type.eql?('king') && !temp_piece.color.eql?(piece.occupied_by.color) ? arr.push(true) : arr.push(false)
     end
     return results.any?(true)
@@ -200,7 +214,7 @@ module Thinkable
     valids = spot.occupied_by.possible_moves.select do |pair|
       temp_move = [spot.coords.first + pair.first, spot.coords.last + pair.last]
       next if board.squares[temp_move].nil?
-      check_path(temp_move, spot.coords, board, pair)
+      check_path(temp_move, spot, board, pair)
     end
   end
 end

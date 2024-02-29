@@ -61,28 +61,32 @@ module Displayable
     puts %(Corner the opponent's king piece to get a checkmate!)
     puts %(All pieces except the Knight piece cannot move over other pieces)
     puts %(You can only move one piece per turn)
-    puts %(Let the games begin!!!)
   end
 
   def info_msg
-    puts %(Since the pieces are colored red and green)
+    puts %(\nSince the pieces are colored red and green)
     puts %(Red will be white, and black will be green)
+    puts %()
   end
 
   def moving_info_msg
-    puts %(To move a piece, use the following notation: (piece initial, current column), (destination row/column))
-    puts %(e.g. Q3, 54 to move a queen piece at [n, 3] to [5, 4]; p2, 34 to move a pawn at [n, 2] to [3, 4])
-    puts %(Piece inital list:)
-    print %(King: K, Queen: Q, Bishop: B, Rook: R, Knight: N, Pawn: p)
+    puts %(\nTo move a piece, use the following notation: (piece initial, current column), (destination row/column))
+    puts %(e.g. Q3, 54 to move a queen piece at column 3 to [5, 4]; p2, 34 to move a pawn at column 2 to [3, 4])
+    puts %(Piece inital list: King: K, Queen: Q, Bishop: B, Rook: R, Knight: N, Pawn: p)
+    puts %(The squares are ordered 1-8, left-to-right, top-to-bottom)
   end
 
   def turn_msg(count)
-    puts %(Turn #{count}:)
+    puts %(\n\t\tTurn #{count}:)
   end
 
   # method to get the coords the player wants to move the piece to
   def move_msg(player)
-    print %(#{player.piece_color}'s move notation: )
+    print %(#{player.name}'s move: )
+  end
+
+  def invalid_move_msg
+    puts %(Not a valid move, try again)
   end
 
   def chess_check_msg(player)
