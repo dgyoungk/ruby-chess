@@ -3,13 +3,13 @@ Dir["./lib/game_pieces/*.rb"].each {|file| require file }
 # './lib/modules/occupiable.rb'
 module Occupiable
   def add_blank_spot(node)
-    blank_piece = ChessPiece.new('placeholder', 'none', 'blankspot')
+    blank_piece = ChessPiece.new('placeholder', 'none')
     blank_piece.add_visual(empty_square)
     node.add_occupancy(blank_piece)
   end
 
   def add_pawns(coords, node, color)
-    new_pawn = Pawn.new('pawn', color, %(#{color}pawn#{coords.last}))
+    new_pawn = Pawn.new('pawn', color)
     node.add_occupancy(new_pawn)
   end
 
@@ -29,27 +29,27 @@ module Occupiable
   end
 
   def add_rook(coords, node, color)
-    new_rook = Rook.new('rook', color, %(#{color}rook#{coords.last}))
+    new_rook = Rook.new('rook', color)
     node.add_occupancy(new_rook)
   end
 
   def add_knight(coords, node, color)
-    new_knight = Knight.new('knight', color, %(#{color}knight#{coords.last}))
+    new_knight = Knight.new('knight', color)
     node.add_occupancy(new_knight)
   end
 
   def add_bishop(coords, node, color)
-    new_bishop = Bishop.new('bishop', color, %(#{color}bishop#{coords.last}))
+    new_bishop = Bishop.new('bishop', color)
     node.add_occupancy(new_bishop)
   end
 
   def add_queen(coords, node, color)
-    new_queen = Queen.new('queen', color, %(#{color}queen#{coords.last}))
+    new_queen = Queen.new('queen', color)
     node.add_occupancy(new_queen)
   end
 
   def add_king(coords, node, color)
-    new_king = King.new('king', color, %(#{color}king#{coords.last}))
+    new_king = King.new('king', color)
     node.add_occupancy(new_king)
   end
 end

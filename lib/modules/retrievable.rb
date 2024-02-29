@@ -1,8 +1,5 @@
-require_relative 'thinkable'
-
 # './lib/modules/retrievable.rb'
 module Retrievable
-  include Thinkable
   # Chess board and Chess piece methods
   # the reject block removes the [0,0] move since it's redundant
   def board_edges
@@ -63,6 +60,15 @@ module Retrievable
       'knightwhite' => "\s#{fg_colorize("\u265E", chess_board_colors[:red])}",
       'pawnwhite' => "\s#{fg_colorize("\u265F", chess_board_colors[:red])}"
     }
+  end
+
+  # this method will change the background colors
+  def bg_colorize(string, rgb_values)
+    "\e[48;2;#{rgb_values}m#{string}\e[0m"
+  end
+
+  def fg_colorize(string, rgb_values)
+    %(\e[38;2;#{rgb_values}m#{string}\u0020\e[0m)
   end
 
   def chess_board_colors
