@@ -85,8 +85,16 @@ module Displayable
     print %(#{player.name}'s move: )
   end
 
-  def invalid_move_msg
+  def illegal_move_msg
     puts %(Not a valid move, try again)
+  end
+
+  def blocked_path_msg
+    puts %(A piece is blocking the path, try another position)
+  end
+
+  def square_occupied_msg
+    puts %(That square is already occupied, try another position)
   end
 
   def chess_check_msg(player)

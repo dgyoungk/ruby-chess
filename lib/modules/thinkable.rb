@@ -26,19 +26,20 @@ module Thinkable
     move_to
   end
 
-  def format_verified?(user_notation)
+  def format_verified?(user_notation, status = [])
     # things to check:
     # first one should be a letter included in the initials hash
     # total length excluding punctuation and whitespace should be 4
     # all numbers should be inside the chess board i.e. less than 8
     pure_info = user_notation.split(/,\s*/).join('')
-    return true if pure_info.size.eql?(4)
-    return true if piece_initials.keys.include?(pure_info.chars.first)
-    return pure_info.slice(1..).chars.all? { |info| info < '8' }
+    pure_info.size.eql?(4) ? status.push(true) : status.push(false)
+    piece_initials.keys.include?(pure_info.chars.first) ? status.push(true)  : status.push(false)
+    pure_info.slice(1..).chars.all? { |info| info.to_i <= 8 } ? status.push(true) : status.push(false)
+    return status.all?(true)
   end
 
-  def piece_matched?(move_notation, player, spot)
-    return column_match?(spot.coords, move_notation) && type_match?(spot, move_notation) && color_match?(spot, player)
+  def piece_matched?(move_notation, spot)
+    return column_match?(spot.coords, move_notation) && type_match?(spot, move_notation)
   end
 
   def column_match?(coords, move_notation)
@@ -49,18 +50,24 @@ module Thinkable
     return spot.occupied_by.type.eql?(piece_type(move_notation))
   end
 
-  def color_match?(spot, player)
-    return spot.occupied_by.color.eql?(player.piece_color)
-  end
-
   # methods that help chess pieces make a legal move i.e. checking moving path
   def empty_spot?(coords, board)
     return board.squares[coords].occupied_by.instance_of? ChessPiece
   end
 
+  # checking whether the move is possible...
+  # get the move by subtracting the current coords from the destination coords
+  # return whether the piece's possible_moves includes the resulting coords
+  def legal_move?(move_notation, spot)
+    temp_dest = piece_destination(move_notation)
+    move_to_make = [temp_dest.first - spot.coords.first, temp_dest.last - spot.coords.last]
+    return spot.occupied_by.possible_moves.include?(move_to_make)
+  end
+
   def clear_path?(move_notation, player, board)
     destination = piece_destination(move_notation)
-    board.squares.values.each do |spot|
+    player_pieces = board.squares.values.select { |spot| spot.occupied_by.color.eql?(player.piece_color) }
+    player_pieces.each do |spot|
       if piece_matched?(move_notation, player, spot)
         return check_path(destination, spot, board)
       end
@@ -73,7 +80,6 @@ module Thinkable
       difference.push(destination.first - spot.coords.first)
       difference.push(destination.last - spot.coords.last)
     end
-    return false if !spot.occupied_by.possible_moves.include?(difference)
     count = create_count(difference)
     path_results = check_empty_spots(difference, count, board, spot.coords)
     path_results.empty? ? false : path_results.all?(true)
@@ -92,13 +98,13 @@ module Thinkable
   end
 
   def check_empty_spots(difference, count, board, starting, results = [])
-    temp_coords = [starting.first + count.first, starting.last + count.last]
-    if count.eql?(difference) && empty_spot?(temp_coords, board)
+    temp_dest = [starting.first + count.first, starting.last + count.last]
+    if count.eql?(difference) && empty_spot?(temp_dest, board)
       results.push(true)
       return results
     end
     until count.eql?(difference)
-      results.push(empty_spot?(temp_coords, board))
+      results.push(empty_spot?(temp_dest, board))
       count = update_count(count)
     end
     results
@@ -124,7 +130,8 @@ module Thinkable
     not_checking = %w(king pawn)
     opp = opponent_pieces(board, player, not_checking)
     king_piece = player_king_piece(board, player)
-    king_overlapping(board, king_piece, opp).all?(true)
+    status = king_overlapping(board, king_piece, opp)
+    return status.all?(true)
   end
 
   def king_overlapping(board, king_piece, opp)

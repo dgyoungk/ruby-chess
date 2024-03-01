@@ -16,7 +16,7 @@ module Retrievable
   end
 
   def moves_of_pawn
-    return [[1, 0], [-1, 1], [1, 1], [2, 0], [-1, 0], [-2, 0]]
+    return [[1, 0], [2, 0], [-1, 0], [-2, 0], [-1, 1], [1, 1], [1, -1], [-1, -1]]
   end
 
   def moves_of_rook
