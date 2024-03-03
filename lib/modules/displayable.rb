@@ -28,13 +28,15 @@ module Displayable
 
   def print_square(square_color, node, coords)
     if (coords.last).eql?(8)
-      puts %(#{bg_colorize(node.occupied_by.visual, square_color)})
+      puts %(#{bg_colorize(node.occupied_by.visual, square_color)}\s\s#{coords.first})
     else
       print %(#{bg_colorize(node.occupied_by.visual, square_color)})
     end
   end
 
   def show_top_border
+    print "\n\n"
+    8.times { |n| print (n + 1).eql?(8) ? %(\s#{n + 1}\s\n) : %(\s#{n + 1}\s) }
     24.times { print "\u{1FB7B}" }
     puts
   end
@@ -66,14 +68,13 @@ module Displayable
   def info_msg
     puts %(\nSince the pieces are colored red and green)
     puts %(Red will be white, and black will be green)
-    puts %()
+    puts %(Piece inital list: King: K, Queen: Q, Bishop: B, Rook: R, Knight: N, Pawn: p)
+    puts %(The squares are ordered 1-8, left-to-right, top-to-bottom)
   end
 
   def moving_info_msg
-    puts %(\nTo move a piece, use the following notation: (piece initial, current column), (destination row/column))
-    puts %(e.g. Q3, 54 to move a queen piece at column 3 to [5, 4]; p2, 34 to move a pawn at column 2 to [3, 4])
-    puts %(Piece inital list: King: K, Queen: Q, Bishop: B, Rook: R, Knight: N, Pawn: p)
-    puts %(The squares are ordered 1-8, left-to-right, top-to-bottom)
+    puts %(\nTo move a piece, use this notation: (initial, row/column), (destination row, column))
+    puts %(e.g. p74, 54 to move a pawn at [7,4] to [5, 4])
   end
 
   def turn_msg(count)
@@ -85,12 +86,24 @@ module Displayable
     print %(#{player.name}'s move: )
   end
 
+  def error_msg
+    puts %(\nInvalid option, try again)
+  end
+
+  def incorrect_piece_msg
+    puts %(\nNo player piece at specified location, try again)
+  end
+
   def illegal_move_msg
     puts %(Not a valid move, try again)
   end
 
   def blocked_path_msg
     puts %(A piece is blocking the path, try another position)
+  end
+
+  def check_move_msg
+    puts %(That move would put your King in check, try another move)
   end
 
   def square_occupied_msg
@@ -109,9 +122,7 @@ module Displayable
     puts %(\nThe game has come to a draw)
   end
 
-  def error_msg
-    puts %(\nInvalid option, try again)
-  end
+
 
   def replay_msg
     print %(\nWould you like to play again? (y/n): )

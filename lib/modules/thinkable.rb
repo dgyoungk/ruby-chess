@@ -1,3 +1,4 @@
+require 'pry-byebug'
 # './lib/modules/thinkable.rb'
 module Thinkable
 
@@ -7,18 +8,18 @@ module Thinkable
 
   def format_verified?(user_notation, status = [])
     pure_info = user_notation.split(/,\s*/).join('')
-    pure_info.size.eql?(4) ? status.push(true) : status.push(false)
+    pure_info.size.eql?(5) ? status.push(true) : status.push(false)
     piece_initials.keys.include?(pure_info.chars.first) ? status.push(true)  : status.push(false)
     pure_info.slice(1..).chars.all? { |info| info.to_i <= 8 } ? status.push(true) : status.push(false)
     return status.all?(true)
   end
 
   def piece_matched?(move_notation, spot)
-    return column_match?(spot.coords, move_notation) && type_match?(spot, move_notation)
+    return location_match?(spot.coords, move_notation) && type_match?(spot, move_notation)
   end
 
-  def column_match?(coords, move_notation)
-    return (coords.last).eql?(piece_column(move_notation))
+  def location_match?(coords, move_notation)
+    return (coords).eql?(piece_location(move_notation))
   end
 
   def type_match?(spot, move_notation)
@@ -33,17 +34,17 @@ module Thinkable
   # checking whether the move is possible...
   # get the move by subtracting the current coords from the destination coords
   # return whether the piece's possible_moves includes the resulting coords
-  def legal_move?(move_notation, spot)
+  def legal_move?(move_notation, temp_piece)
     temp_dest = piece_destination(move_notation)
-    move_to_make = [temp_dest.first - spot.coords.first, temp_dest.last - spot.coords.last]
-    return spot.occupied_by.possible_moves.include?(move_to_make)
+    move_to_make = [temp_dest.first - temp_piece.coords.first, temp_dest.last - temp_piece.coords.last]
+    return temp_piece.occupied_by.possible_moves.include?(move_to_make)
   end
 
   def clear_path?(move_notation, player, board)
     destination = piece_destination(move_notation)
     player_pieces = board.squares.values.select { |spot| spot.occupied_by.color.eql?(player.piece_color) }
     player_pieces.each do |spot|
-      if piece_matched?(move_notation, player, spot)
+      if piece_matched?(move_notation, spot)
         return check_path(destination, spot, board)
       end
     end
@@ -68,16 +69,16 @@ module Thinkable
   end
 
   def check?(board, player, results = [])
-    # I need to get every single ranked piece e.g. Rook, Knight, Bishop, Queen
-    # and check if a King piece is in their path AND a piece is not blocking the way
-    # only exception is the knight, I just need to check if a king is one move away
-    # so 2 methods, one for the knight piece and another for the non-knight pieces
+    # when this method is called, it should check every piece of the player except the king
+    # whether it has the opponent's king piece in its path and there's a clear path
+    # with the exception of the knight piece
     checking_pieces = piece_initials.values.reject { |type| type.eql?('king')  }
     # each element in types will be an array of nodes that contain pieces
     checking_pieces.each do |type|
       pieces = pieces_on_board(board, player, type)
-      results = pieces.each_with_object([]) { |spot, arr| arr.push(piece_check(board, spot)) }
+      piece_status = pieces.each_with_object([]) { |spot, arr| arr.push(piece_check(board, spot)) }
+      results.push(piece_status.flatten)
     end
-    return results.any?(true)
+    return results.flatten.any?(true)
   end
 end

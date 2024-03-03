@@ -37,8 +37,8 @@ module Retrievable
     return move_notation.last.chars.map(&:to_i)
   end
 
-  def piece_column(move_notation)
-    return move_notation.first.chars.last.to_i
+  def piece_location(move_notation)
+    return move_notation.first.chars[1..].map(&:to_i)
   end
 
   def selected_piece(player_pieces, move_notation)
@@ -51,16 +51,16 @@ module Retrievable
     return board.squares.values.select { |spot| spot.occupied_by.color.eql?(player.piece_color) }
   end
 
-  def legal_pawn_dest(move_to_make, moves, player, temp_piece)
-    new_dest = [move_to_make.first + temp_piece.coords.first, move_to_make.last + temp_piece.coords.last]
-    return new_dest if moves.include?(move_to_make)
+  def legal_pawn_not(move_notation, moves, player, temp_piece)
+    destination = piece_destination(move_notation)
+    move_to_make = [destination.first - temp_piece.coords.first, destination.last - temp_piece.coords.last]
     until moves.include?(move_to_make)
       illegal_move_msg
       move_notation = piece_position(player).split(/,\s*/)
       new_dest = piece_destination(move_notation)
       move_to_make = [new_dest.first - temp_piece.coords.first, new_dest.last - temp_piece.coords.last]
     end
-    new_dest
+    move_notation
   end
 
   def create_count(difference, count = [])
@@ -92,7 +92,7 @@ module Retrievable
   end
 
   def player_king_piece(checking_pieces)
-    return checking_pieces.select { |spot| spot.occupied_by.type.eql?('king') }.first
+    return checking_pieces.select { |spot| spot.occupied_by.type.eql?('king') }.pop
   end
 
   def opponent_pieces(other_pieces)

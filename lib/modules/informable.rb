@@ -25,6 +25,17 @@ module Informable
     move_to
   end
 
+  def correct_piece(player_pieces, move_notation, player)
+    temp_piece = selected_piece(player_pieces, move_notation)
+    until temp_piece.instance_of? Node
+      incorrect_piece_msg
+      move_notation = piece_position(player).split(/,\s*/)
+      temp_piece = selected_piece(player_pieces, move_notation)
+    end
+    return move_notation, temp_piece
+  end
+
+
   def check_path(destination, spot, board, difference = [])
     # let's say the current coords is 7, 2 and destination is 6, 2
     if difference.empty?
@@ -38,7 +49,7 @@ module Informable
 
   def check_empty_spots(difference, count, board, starting, results = [])
     temp_dest = [starting.first + count.first, starting.last + count.last]
-    return results.push(true) if count.eql?(difference) && empty_spot?(temp_dest, board)
+    return results.push(true) if count.eql?(difference)
     until count.eql?(difference)
       results.push(empty_spot?(temp_dest, board))
       count = update_count(count)
@@ -51,11 +62,22 @@ module Informable
     king_moves = valid_moves(board, k_piece)
     return stales.push(false) if king_moves.empty?
     rival_pieces.each do |r_piece|
-      rival_moves = valid_moves(board, piece)
+      rival_moves = rival_piece_moves(board, r_piece)
       next if rival_moves.empty?
-      stales.push(piece_overlap(rival_moves, k_piece, king_moves))
+      stales.push(piece_overlap(rival_moves, r_piece, k_piece, king_moves))
     end
     stales
+  end
+
+  def rival_piece_moves(board, r_piece)
+    case r_piece.occupied_by.type
+    when 'knight'
+      return r_piece.occupied_by.possible_moves
+    when 'pawn'
+      return pawn_capturing_moves(r_piece)
+    else
+      return valid_moves(board, r_piece)
+    end
   end
 
   def piece_overlap(rival_moves, r_piece, k_piece, king_moves)
@@ -66,6 +88,7 @@ module Informable
         return true if king_dest.eql?(rival_dest)
       end
     end
+    false
   end
 
   def piece_check(board, piece)
@@ -82,17 +105,21 @@ module Informable
   end
 
   def non_knight_check(board, piece)
-    results = valid_moves(board, piece).each_with_object([]) do |pair, arr|
+    piece_moves = piece.occupied_by.possible_moves
+    results = piece_moves.each_with_object([]) do |pair, arr|
       temp_dest = [piece.coords.first + pair.first, piece.coords.last + pair.last]
+      next if board.squares[temp_dest].nil?
       temp_piece = board.squares[temp_dest].occupied_by
-      arr.push(true) if temp_piece.type.eql?('king') && !temp_piece.color.eql?(piece.occupied_by.color)
-      arr
+      if temp_piece.type.eql?('king') && !temp_piece.color.eql?(piece.occupied_by.color)
+        return arr.push(check_path(temp_dest, piece, board, pair))
+      end
     end
     return results.any?(true)
   end
 
   def pawn_check(board, piece)
-    capturing_move = piece.occupied_by.possible_moves.reject { |pair| pair.include?(0) }
+    capturing_move = pawn_capturing_moves(piece)
+    capturing_move = color_specific_captures(capturing_move, piece)
     results = capturing_move.each_with_object([]) do |pair, arr|
       temp_dest = [piece.coords.first + pair.first, piece.coords.last + pair.last]
       next if board.squares[temp_dest].nil?
@@ -107,8 +134,7 @@ module Informable
       temp_dest = [piece.coords.first + pair.first, piece.coords.last + pair.last]
       next if board.squares[temp_dest].nil?
       temp_piece = board.squares[temp_dest].occupied_by
-      arr.push(true) if temp_piece.type.eql?('king') && !temp_piece.color.eql?(piece.occupied_by.color)
-      arr
+      temp_piece.type.eql?('king') && !temp_piece.color.eql?(piece.occupied_by.color) ? arr.push(true) : arr.push(false)
     end
     return results.any?(true)
   end

@@ -25,6 +25,19 @@ module Movable
     end
   end
 
+  def pawn_capturing_moves(temp_piece)
+    return temp_piece.occupied_by.possible_moves.reject { |pair| pair.include?(0) }
+  end
+
+  def color_specific_captures(capturing_move, piece)
+    case piece.occupied_by.color
+    when 'white'
+      return capturing_move.select { |pair| pair.eql?([-1, 1]) || pair.eql?([-1, -1]) }
+    when 'black'
+      return capturing_move.select { |pair| pair.eql?([1, 1]) || pair.eql?([1, -1]) }
+    end
+  end
+
   def pawn_allowed_moves(starting_pos, temp_piece)
     # if the piece is at the starting position, they can move 2 or 1 spaces
     if temp_piece.coords.first.eql?(starting_pos)
