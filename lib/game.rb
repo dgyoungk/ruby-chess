@@ -29,9 +29,9 @@ class Game
     welcome_msg
     2.times { |n| create_player(n) }
     rules_msg
-    # sleep(5)
+    sleep(5)
     info_msg
-    # sleep(8)
+    sleep(8)
     start_game
   end
 
@@ -45,8 +45,8 @@ class Game
 
   def create_player(count)
     new_player_msg(count)
-    # p_name = gets.chomp
-    p_name = count.eql?(0) ? 'joe' : 'beck'
+    p_name = gets.chomp
+    # p_name = count.eql?(0) ? 'joe' : 'beck'
     assign_player(p_name)
   end
 
@@ -80,7 +80,8 @@ class Game
         moving_info_msg
         turn_msg(turn)
         move_piece(player)
-        check_game_status(player)
+        binding.pry
+        break if check_game_status(player)
       end
       self.turn += 1
     end
@@ -89,13 +90,6 @@ class Game
   def move_piece(player)
     player_pieces = board.squares.values.select { |spot| spot.occupied_by.color.eql?(player.piece_color) }
     move_notation = piece_position(player).split(/,\s*/)
-    # move_notation = 'p71, 51'.split(/,\s*/)
-    # notations = []
-    # notations.push('p71, 51'.split(/,\s*/))
-    # notations.push('p72, 62'.split(/,\s*/))
-    # notations.push('p21, 41'.split(/,\s*/))
-    # notations.push('R11, 21'.split(/,\s*/))
-    # move_notation = player.piece_color.eql?('white') ? notations.shift : notations.pop
     move_notation = square_occupancy(move_notation, player)
     move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
     move_or_capture(player, move_notation, temp_piece)
@@ -195,7 +189,7 @@ class Game
   # for pawns capturing, I have to check moves that only go in a digonal direction
   # i.e. all moves that don't contain 0 or 2
   def pawn_capture(move_notation, player, temp_piece)
-    capturing_moves = pawn_capturing_moves(temp_piece)
+    capturing_moves = color_specific_captures(temp_piece)
     move_notation = legal_pawn_not(move_notation, capturing_moves, player, temp_piece)
     capture_piece(move_notation, player, temp_piece)
   end
@@ -215,14 +209,16 @@ class Game
 
   def check_game_status(player)
     # binding.pry
-    if checkmate?(board, player)
-      game_finished = true
+    if checkmate?(board, player, players)
+      self.game_finished = true
       winner_msg(player.name)
+      return true
     elsif check?(board, player)
       chess_check_msg(player)
     elsif stalemate?(board, player) || dead_position?(board)
-      game_finished = true
+      self.game_finished = true
       no_winner_msg
+      return true
     end
   end
 

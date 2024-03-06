@@ -91,14 +91,14 @@ module Retrievable
     return player_pieces(board, player).select { |spot| spot.occupied_by.type.eql?(piece) }
   end
 
-  def player_king_piece(checking_pieces)
-    return checking_pieces.select { |spot| spot.occupied_by.type.eql?('king') }.pop
+  def player_king_piece(player_pieces)
+    return player_pieces.select { |spot| spot.occupied_by.type.eql?('king') }.pop
   end
 
   def opponent_pieces(other_pieces)
     other_color = other_pieces.reject do |spot|
       piece = spot.occupied_by
-      piece.type.eql?('king') || piece.instance_of?(ChessPiece)
+      piece.type.eql?('king') || piece.color.eql?('none')
     end
   end
 end

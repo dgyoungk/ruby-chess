@@ -28,7 +28,7 @@ module Thinkable
 
   # methods that help chess pieces make a legal move i.e. checking moving path
   def empty_spot?(coords, board)
-    return board.squares[coords].occupied_by.instance_of? ChessPiece
+    return board.squares[coords].occupied_by.color.eql?('none')
   end
 
   # checking whether the move is possible...
@@ -52,7 +52,7 @@ module Thinkable
 
   # game draw condition checking
   def dead_position?(board)
-    return board.squares.values.select { |spot| spot.occupied_by.instance_of? ChessPiece }.size.eql?(62)
+    return board.squares.values.select { |spot| spot.occupied_by.color.eql?('none') }.size.eql?(62)
   end
 
   def stalemate?(board, player)
@@ -60,12 +60,35 @@ module Thinkable
     other_pieces = board.squares.values.reject { |spot| spot.occupied_by.color.eql?(player.piece_color) }
     rival_pieces = opponent_pieces(other_pieces)
     king_piece = player_king_piece(player_pieces)
-    status = king_overlapping(board, king_piece, rival_pieces)
-    return status.all?(true)
+    if king_stale?(board, king_piece, rival_pieces)
+      return pieces_stale?(board, player_pieces, rival_pieces)
+    else
+      return false
+    end
   end
 
-  def checkmate?(board, player)
-    return check?(board, player) && stalemate?(board, player)
+  def king_stale?(board, king_piece, rival_pieces)
+    king_moves = valid_moves(board, king_piece)
+    return true if king_moves.empty?
+    k_results = check_for_stale(board, king_moves, king_piece, rival_pieces)
+    return k_results.all?(true)
+  end
+
+  # when checking for a stalemate, if the king has no legal moves to make
+
+  def pieces_stale?(board, player_pieces, rival_pieces)
+    p_results = player_pieces.each_with_object([]) do |piece, p_arr|
+      player_p_moves = determine_moves(board, piece)
+      next if player_p_moves.empty?
+      stale_piece = check_for_stale(board, player_p_moves, piece, rival_pieces)
+      p_arr.push(stale_piece.any?(true))
+    end
+    return p_results.any?(true)
+  end
+
+  def checkmate?(board, player, players)
+    other_player = players.reject { |opponent| opponent.name.eql?(player.name)}.first
+    return (check?(board, player) && stalemate?(board, other_player)) || (check?(board, other_player) && stalemate?(board, player))
   end
 
   def check?(board, player, results = [])

@@ -25,16 +25,16 @@ module Movable
     end
   end
 
-  def pawn_capturing_moves(temp_piece)
-    return temp_piece.occupied_by.possible_moves.reject { |pair| pair.include?(0) }
-  end
+  # def pawn_capturing_moves(temp_piece)
+  #   return temp_piece.occupied_by.possible_moves.reject { |pair| pair.include?(0) }
+  # end
 
-  def color_specific_captures(capturing_move, piece)
+  def color_specific_captures(piece)
     case piece.occupied_by.color
     when 'white'
-      return capturing_move.select { |pair| pair.eql?([-1, 1]) || pair.eql?([-1, -1]) }
+      return piece.occupied_by.possible_moves.select { |pair| pair.eql?([-1, 1]) || pair.eql?([-1, -1]) }
     when 'black'
-      return capturing_move.select { |pair| pair.eql?([1, 1]) || pair.eql?([1, -1]) }
+      return piece.occupied_by.possible_moves.select { |pair| pair.eql?([1, 1]) || pair.eql?([1, -1]) }
     end
   end
 
