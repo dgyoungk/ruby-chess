@@ -46,7 +46,6 @@ class Game
   def create_player(count)
     new_player_msg(count)
     p_name = gets.chomp
-    # p_name = count.eql?(0) ? 'joe' : 'beck'
     assign_player(p_name)
   end
 
@@ -208,7 +207,6 @@ class Game
   end
 
   def check_game_status(player)
-    # binding.pry
     if checkmate?(board, player, players)
       self.game_finished = true
       winner_msg(player.name)

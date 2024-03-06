@@ -37,7 +37,6 @@ module Informable
   end
 
   def check_path(destination, spot, board, difference = [])
-    # let's say the current coords is 7, 2 and destination is 6, 2
     if difference.empty?
       difference.push(destination.first - spot.coords.first)
       difference.push(destination.last - spot.coords.last)
@@ -70,7 +69,6 @@ module Informable
 
   def piece_check(board, piece)
     # let's have this as the general check method and delegate to knight/non-knight pieces here
-    # the concern is returning the results
     case piece.occupied_by.type
     when 'knight'
       return knight_check(board, piece)

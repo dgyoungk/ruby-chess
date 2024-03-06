@@ -25,10 +25,6 @@ module Movable
     end
   end
 
-  # def pawn_capturing_moves(temp_piece)
-  #   return temp_piece.occupied_by.possible_moves.reject { |pair| pair.include?(0) }
-  # end
-
   def color_specific_captures(piece)
     case piece.occupied_by.color
     when 'white'
@@ -51,11 +47,9 @@ module Movable
   def pawn_regular_moves(starting_pos, temp_piece)
     # if the pawn is white, they can only move upwards
     if starting_pos.eql?(7)
-      # this one would be [-1, 0]
       return temp_piece.occupied_by.possible_moves.select { |pair| pair.eql?([-1, 0]) }
     # if the pawn is black, they can only move downwards
     else
-      # this one would be [1, 0]
       return temp_piece.occupied_by.possible_moves.select { |pair| pair.eql?([1, 0]) }
     end
   end
@@ -63,11 +57,9 @@ module Movable
   def pawn_starting_moves(starting_pos, temp_piece)
     # if the pawn is white, they can only move upwards
     if starting_pos.eql?(7)
-      # this one would be either [-2, 0] or [-1, 0]
       return temp_piece.occupied_by.possible_moves.select { |pair| pair.eql?([-2, 0]) || pair.eql?([-1, 0]) }
     # if the pawn is black, they can only move downwards
     else
-      # this one would be either [2, 0] or [1, 0]
       return temp_piece.occupied_by.possible_moves.select { |pair| pair.eql?([2, 0]) || pair.eql?([1, 0]) }
     end
   end

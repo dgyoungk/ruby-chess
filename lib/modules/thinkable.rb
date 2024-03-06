@@ -31,9 +31,6 @@ module Thinkable
     return board.squares[coords].occupied_by.color.eql?('none')
   end
 
-  # checking whether the move is possible...
-  # get the move by subtracting the current coords from the destination coords
-  # return whether the piece's possible_moves includes the resulting coords
   def legal_move?(move_notation, temp_piece)
     temp_dest = piece_destination(move_notation)
     move_to_make = [temp_dest.first - temp_piece.coords.first, temp_dest.last - temp_piece.coords.last]
@@ -74,8 +71,6 @@ module Thinkable
     return k_results.all?(true)
   end
 
-  # when checking for a stalemate, if the king has no legal moves to make
-
   def pieces_stale?(board, player_pieces, rival_pieces)
     p_results = player_pieces.each_with_object([]) do |piece, p_arr|
       player_p_moves = determine_moves(board, piece)
@@ -92,11 +87,7 @@ module Thinkable
   end
 
   def check?(board, player, results = [])
-    # when this method is called, it should check every piece of the player except the king
-    # whether it has the opponent's king piece in its path and there's a clear path
-    # with the exception of the knight piece
     checking_pieces = piece_initials.values.reject { |type| type.eql?('king')  }
-    # each element in types will be an array of nodes that contain pieces
     checking_pieces.each do |type|
       pieces = pieces_on_board(board, player, type)
       piece_status = pieces.each_with_object([]) { |spot, arr| arr.push(piece_check(board, spot)) }
