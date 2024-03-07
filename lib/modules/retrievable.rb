@@ -53,14 +53,26 @@ module Retrievable
 
   def legal_pawn_not(move_notation, moves, player, temp_piece)
     destination = piece_destination(move_notation)
-    move_to_make = [destination.first - temp_piece.coords.first, destination.last - temp_piece.coords.last]
+    move_to_make = create_move(destination, temp_piece.coords)
     until moves.include?(move_to_make)
       illegal_move_msg
       move_notation = piece_position(player).split(/,\s*/)
       new_dest = piece_destination(move_notation)
-      move_to_make = [new_dest.first - temp_piece.coords.first, new_dest.last - temp_piece.coords.last]
+      move_to_make = create_move(destination, temp_piece.coords)
     end
     move_notation
+  end
+
+  def create_move(destination, current, move = [])
+    move.push(destination.first - current.first)
+    move.push(destination.last - current.last)
+    return move
+  end
+
+  def create_destination(current, move, dest = [])
+    dest.push(current.first + move.first)
+    dest.push(current.last + move.last)
+    return dest
   end
 
   def create_count(difference, count = [])
@@ -81,9 +93,26 @@ module Retrievable
     elsif count.last.zero?
       count[0] = count.first.negative? ? count.first - 1 : count.first + 1
     else
-      count = [count.first.negative? ? count.first - 1 : count.first + 1, count.last.negative? ? count.last - 1 : count.last + 1]
+      count = [
+        count.first.negative? ? count.first - 1 : count.first + 1,
+        count.last.negative? ? count.last - 1 : count.last + 1
+      ]
     end
     count
+  end
+
+  def update_difference(difference)
+    if difference.first.zero?
+      difference[-1] = difference.last.negative? ? difference.last + 1 : difference.last - 1
+    elsif difference.last.zero?
+      difference[0] = difference.first.negative? ? difference.first + 1 : difference.first - 1
+    else
+      difference = [
+        difference.first.negative? ? difference.first + 1 : difference.first - 1,
+        difference.last.negative? ? difference.last + 1 : difference.last - 1
+      ]
+    end
+    difference
   end
 
   # Chess game winning condition related methods

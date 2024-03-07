@@ -29,9 +29,9 @@ class Game
     welcome_msg
     2.times { |n| create_player(n) }
     rules_msg
-    sleep(5)
+    # sleep(5)
     info_msg
-    sleep(8)
+    # sleep(5)
     start_game
   end
 
@@ -44,8 +44,7 @@ class Game
   end
 
   def create_player(count)
-    new_player_msg(count)
-    p_name = gets.chomp
+    p_name = refine_name(count)
     assign_player(p_name)
   end
 
@@ -67,6 +66,7 @@ class Game
   def start_game
     while keep_playing?
       play_once
+      sleep(2)
       prompt_replay
       game_end
     end
@@ -75,11 +75,13 @@ class Game
   def play_once
     until game_over?
       players.each do |player|
+        other_player = player.piece_color.eql?('white') ? player2 : player1
+        break if game_draw_status(other_player)
         show_chess_board(board)
         moving_info_msg
         turn_msg(turn)
         move_piece(player)
-        binding.pry
+        # binding.pry
         break if check_game_status(player)
       end
       self.turn += 1
@@ -89,6 +91,7 @@ class Game
   def move_piece(player)
     player_pieces = board.squares.values.select { |spot| spot.occupied_by.color.eql?(player.piece_color) }
     move_notation = piece_position(player).split(/,\s*/)
+    # binding.pry
     move_notation = square_occupancy(move_notation, player)
     move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
     move_or_capture(player, move_notation, temp_piece)
@@ -99,13 +102,14 @@ class Game
     until legal_move?(move_notation, temp_piece)
       illegal_move_msg
       move_notation = piece_position(player).split(/,\s*/)
-      temp_piece = correct_piece(player_pieces, move_notation, player)
+      move_notation, temp_piece = correct_piece(player_pieces, move_notation, player)
     end
     return move_notation, temp_piece
   end
 
   def square_occupancy(move_notation, player)
     destination = piece_destination(move_notation)
+    # binding.pry
     while board.squares[destination].occupied_by.color.eql?(player.piece_color)
       square_occupied_msg
       move_notation = piece_position(player).split(/,\s*/)
@@ -138,8 +142,9 @@ class Game
 
   def move_king_piece(move_notation, player, temp_piece)
     destination = piece_destination(move_notation)
+    other_player = player.piece_color.eql?('white') ? player2 : player1
     swap_places(move_notation, temp_piece)
-    while check?(board, player)
+    while check?(board, other_player)
       check_move_msg
       temp_piece.add_occupancy(board.squares[destination].occupied_by)
       add_blank_spot(board.squares[destination])
@@ -207,15 +212,23 @@ class Game
   end
 
   def check_game_status(player)
-    if checkmate?(board, player, players)
+    other_player = player.piece_color.eql?('white') ? player2 : player1
+    # binding.pry
+    if checkmate?(board, player, other_player)
       self.game_finished = true
       winner_msg(player.name)
+      show_chess_board(board)
       return true
     elsif check?(board, player)
       chess_check_msg(player)
-    elsif stalemate?(board, player) || dead_position?(board)
+    end
+  end
+
+  def game_draw_status(other_player)
+    if stalemate?(board, other_player) || dead_position?(board)
       self.game_finished = true
       no_winner_msg
+      show_chess_board(board)
       return true
     end
   end

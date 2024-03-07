@@ -33,7 +33,7 @@ module Thinkable
 
   def legal_move?(move_notation, temp_piece)
     temp_dest = piece_destination(move_notation)
-    move_to_make = [temp_dest.first - temp_piece.coords.first, temp_dest.last - temp_piece.coords.last]
+    move_to_make = create_move(temp_dest, temp_piece.coords)
     return temp_piece.occupied_by.possible_moves.include?(move_to_make)
   end
 
@@ -42,7 +42,11 @@ module Thinkable
     player_pieces = board.squares.values.select { |spot| spot.occupied_by.color.eql?(player.piece_color) }
     player_pieces.each do |spot|
       if piece_matched?(move_notation, spot)
-        return check_path(destination, spot, board)
+        if (caller[0][/`.*'/][1..-2]).include?('move')
+          return check_path(destination, spot, board)
+        else
+          return check_capture_path(destination, spot, board)
+        end
       end
     end
   end
@@ -52,9 +56,9 @@ module Thinkable
     return board.squares.values.select { |spot| spot.occupied_by.color.eql?('none') }.size.eql?(62)
   end
 
-  def stalemate?(board, player)
-    player_pieces = player_pieces(board, player)
-    other_pieces = board.squares.values.reject { |spot| spot.occupied_by.color.eql?(player.piece_color) }
+  def stalemate?(board, other_player)
+    player_pieces = player_pieces(board, other_player)
+    other_pieces = board.squares.values.reject { |spot| spot.occupied_by.color.eql?(other_player.piece_color) }
     rival_pieces = opponent_pieces(other_pieces)
     king_piece = player_king_piece(player_pieces)
     if king_stale?(board, king_piece, rival_pieces)
@@ -65,6 +69,7 @@ module Thinkable
   end
 
   def king_stale?(board, king_piece, rival_pieces)
+    # binding.pry
     king_moves = valid_moves(board, king_piece)
     return true if king_moves.empty?
     k_results = check_for_stale(board, king_moves, king_piece, rival_pieces)
@@ -81,9 +86,12 @@ module Thinkable
     return p_results.any?(true)
   end
 
-  def checkmate?(board, player, players)
-    other_player = players.reject { |opponent| opponent.name.eql?(player.name)}.first
-    return (check?(board, player) && stalemate?(board, other_player)) || (check?(board, other_player) && stalemate?(board, player))
+  def checkmate?(board, player, other_player)
+# binding.pry
+    if check?(board, player)
+      return stalemate?(board, other_player)
+    end
+    # return (check?(board, player) && stalemate?(board, other_player)) || (check?(board, other_player) && stalemate?(board, player))
   end
 
   def check?(board, player, results = [])

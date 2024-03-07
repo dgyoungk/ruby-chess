@@ -67,9 +67,17 @@ module Movable
   def valid_moves(board, spot)
     # I want to select a piece's moves that are legal(stays on the board) and will not collide with other pieces(blank spot)
     valids = spot.occupied_by.possible_moves.select do |pair|
-      temp_move = [spot.coords.first + pair.first, spot.coords.last + pair.last]
-      next if board.squares[temp_move].nil?
-      check_path(temp_move, spot, board, pair)
+      temp_dest = create_destination(spot.coords, pair)
+      next if board.squares[temp_dest].nil?
+      check_path(temp_dest, spot, board, pair)
+    end
+  end
+
+  def valid_captures(board, spot)
+    valids = spot.occupied_by.possible_moves.select do |pair|
+      temp_dest = create_destination(spot.coords, pair)
+      next if board.squares[temp_dest].nil?
+      check_capture_path(temp_dest, spot, board, pair)
     end
   end
 end

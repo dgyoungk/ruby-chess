@@ -35,7 +35,7 @@ module Displayable
   end
 
   def show_top_border
-    print "\n\n"
+    print "\n---------------------------\n"
     8.times { |n| print (n + 1).eql?(8) ? %(\s#{n + 1}\s\n) : %(\s#{n + 1}\s) }
     24.times { print "\u{1FB7B}" }
     puts
@@ -50,8 +50,16 @@ module Displayable
     puts %(\t\tRuby Chess\nOutsmart your opponents and show your wits!)
   end
 
+  def player_info_msg
+    puts %(\nOnly use letters, numbers, and underscores for your username)
+  end
+
   def new_player_msg(count)
-    print %(\nPlayer #{count + 1} username: )
+    print %(Player #{count + 1} username: )
+  end
+
+  def blank_name_msg
+    puts %(Not a valid username, try again)
   end
 
   def player_created_msg(player)
