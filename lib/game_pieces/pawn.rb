@@ -10,7 +10,7 @@ class Pawn < ChessPiece
   end
 
   def pawn_moves
-    self.possible_moves = moves_of_pawn
+    @possible_moves = moves_of_pawn
   end
 
   def assign_icon

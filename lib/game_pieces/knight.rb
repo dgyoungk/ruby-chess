@@ -10,7 +10,7 @@ class Knight < ChessPiece
   end
 
   def knight_moves
-    self.possible_moves = moves_of_knight
+    @possible_moves = moves_of_knight
   end
 
   def assign_icon

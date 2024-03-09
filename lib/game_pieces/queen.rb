@@ -9,7 +9,7 @@ class Queen < ChessPiece
   end
 
   def queen_moves
-    self.possible_moves = moves_of_bishop + moves_of_rook
+    @possible_moves = moves_of_bishop + moves_of_rook
   end
 
   def assign_icon

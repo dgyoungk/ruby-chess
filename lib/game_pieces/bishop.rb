@@ -10,7 +10,7 @@ class Bishop < ChessPiece
   end
 
   def bishop_moves
-    self.possible_moves = moves_of_bishop
+    @possible_moves = moves_of_bishop
   end
 
   def assign_icon

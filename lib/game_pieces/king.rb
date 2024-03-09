@@ -11,7 +11,7 @@ class King < ChessPiece
 
   # since the king moves the same way the board squares are connected
   def king_moves
-    self.possible_moves = board_edges
+    @possible_moves = board_edges
   end
 
   def assign_icon

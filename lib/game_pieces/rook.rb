@@ -10,7 +10,7 @@ class Rook < ChessPiece
   end
 
   def rook_moves
-    self.possible_moves = moves_of_rook
+    @possible_moves = moves_of_rook
   end
 
   def assign_icon
