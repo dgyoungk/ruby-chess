@@ -56,12 +56,12 @@ module Thinkable
     return board.squares.values.select { |spot| spot.occupied_by.color.eql?('none') }.size.eql?(62)
   end
 
-  def stalemate?(board, other_player)
+  def stalemate?(board, player)
     temp_board = Marshal.load(Marshal.dump(board))
-    player_pieces = player_pieces(temp_board, other_player)
-    other_pieces = temp_board.squares.values.reject { |spot| spot.occupied_by.color.eql?(other_player.piece_color) }
-    rival_pieces = opponent_pieces(other_pieces)
+    player_pieces = player_pieces(temp_board, player)
     king_piece = player_king_piece(player_pieces)
+    other_pieces = temp_board.squares.values.reject { |spot| spot.occupied_by.color.eql?(player.piece_color) }
+    rival_pieces = opponent_pieces(other_pieces)
     if king_stale?(temp_board, king_piece, rival_pieces)
       return pieces_stale?(temp_board, player_pieces, rival_pieces)
     else
@@ -84,7 +84,7 @@ module Thinkable
       stale_piece = check_for_stale(board, player_p_moves, piece, rival_pieces)
       p_arr.push(stale_piece.any?(true))
     end
-    return p_results.any?(true)
+    return p_results.all?(true)
   end
 
   def checkmate?(board, player, other_player)

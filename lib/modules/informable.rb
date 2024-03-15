@@ -86,7 +86,7 @@ module Informable
     when 'knight'
       return piece.occupied_by.possible_moves
     when 'pawn'
-      return color_specific_captures(piece)
+      return color_specific_captures(piece) + pawn_regular_moves(piece)
     else
       return valid_moves(board, piece)
     end
@@ -141,15 +141,14 @@ module Informable
   def check_for_stale(board, moves, piece, rival_pieces)
     # don't worry about the other pieces rn, just figure out why the king moving to [1, 4] still returns a check
     # for a bishop that is at [4, 2]
-    temp_board = Marshal.load(Marshal.dump(board))
-    allowed_moves = moves.reject { |pair| temp_board.squares[create_destination(piece.coords, pair)].nil? }
+    allowed_moves = moves.reject { |pair| board.squares[create_destination(piece.coords, pair)].nil? }
     stales = allowed_moves.each_with_object([]) do |pair, arr|
+      temp_board = Marshal.load(Marshal.dump(board))
       temp_dest = create_destination(piece.coords, pair)
       temp_square = temp_board.squares[temp_dest]
       temp_board.squares[temp_dest].add_occupancy(piece.occupied_by)
       add_blank_spot(piece)
       move_results = rival_pieces.each_with_object([]) { |r_piece, r_arr| r_arr.push(piece_check(temp_board, r_piece)) }
-      puts %(#{piece.occupied_by.color} #{piece.occupied_by.type}, #{pair}) if move_results.any?(true)
       arr.push(move_results.any?(true))
     end
     stales
