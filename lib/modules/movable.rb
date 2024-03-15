@@ -1,4 +1,4 @@
-# './lib/modules/movable.rb'
+ # './lib/modules/movable.rb'
 module Movable
   def moves_of_knight
     base =  (-2..2).to_a.repeated_permutation(2).to_a
@@ -37,16 +37,16 @@ module Movable
   def pawn_allowed_moves(starting_pos, temp_piece)
     # if the piece is at the starting position, they can move 2 or 1 spaces
     if temp_piece.coords.first.eql?(starting_pos)
-      pawn_starting_moves(starting_pos, temp_piece)
+      return pawn_starting_moves(temp_piece)
     else
       # if not, the piece can only move 1 space
-      pawn_regular_moves(starting_pos, temp_piece)
+      return pawn_regular_moves(temp_piece)
     end
   end
 
-  def pawn_regular_moves(starting_pos, temp_piece)
+  def pawn_regular_moves(temp_piece)
     # if the pawn is white, they can only move upwards
-    if starting_pos.eql?(7)
+    if temp_piece.occupied_by.color.eql?('white')
       return temp_piece.occupied_by.possible_moves.select { |pair| pair.eql?([-1, 0]) }
     # if the pawn is black, they can only move downwards
     else
@@ -54,9 +54,9 @@ module Movable
     end
   end
 
-  def pawn_starting_moves(starting_pos, temp_piece)
+  def pawn_starting_moves(temp_piece)
     # if the pawn is white, they can only move upwards
-    if starting_pos.eql?(7)
+    if temp_piece.occupied_by.color.eql?('white')
       return temp_piece.occupied_by.possible_moves.select { |pair| pair.eql?([-2, 0]) || pair.eql?([-1, 0]) }
     # if the pawn is black, they can only move downwards
     else
@@ -69,7 +69,12 @@ module Movable
     valids = spot.occupied_by.possible_moves.select do |pair|
       temp_dest = create_destination(spot.coords, pair)
       next if board.squares[temp_dest].nil?
-      check_path(temp_dest, spot, board, pair)
+      # puts caller[2][/`.*'/][1..-2]
+      if (caller[2][/`.*'/][1..-2]).include?('move')
+        check_capture_path(temp_dest, spot, board, pair)
+      else
+        check_path(temp_dest, spot, board, pair)
+      end
     end
   end
 

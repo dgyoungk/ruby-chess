@@ -44,7 +44,8 @@ class Game
   end
 
   def create_player(count)
-    p_name = refine_name(count)
+    # p_name = refine_name(count)
+    p_name = player1.nil? ? 'joe' : 'beck'
     assign_player(p_name)
   end
 
@@ -77,10 +78,10 @@ class Game
       players.each do |player|
         other_player = player.piece_color.eql?('white') ? player2 : player1
         break if game_draw_status(other_player)
-        show_chess_board(board)
+        show_chess_board(self.board)
         moving_info_msg
         turn_msg(turn)
-        move_piece(player)
+        move_piece(player, turn)
         # binding.pry
         break if check_game_status(player)
       end
@@ -88,13 +89,36 @@ class Game
     end
   end
 
-  def move_piece(player)
+  def move_piece(player, turn)
     player_pieces = board.squares.values.select { |spot| spot.occupied_by.color.eql?(player.piece_color) }
-    move_notation = piece_position(player).split(/,\s*/)
-    # binding.pry
+    # move_notation = piece_position(player).split(/,\s*/)
+    move_notation = sample_notations(player, turn)
     move_notation = square_occupancy(move_notation, player)
-    move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
+    move_notation, temp_piece = moving_while_check(move_notation, player_pieces, player)
     move_or_capture(player, move_notation, temp_piece)
+  end
+
+  def sample_notations(player, turn)
+    notations = [
+      'p75, 55'.split(/,\s*/),
+      'p24, 44'.split(/,\s*/),
+      'p55, 44'.split(/,\s*/),
+      'Q14, 44'.split(/,\s*/),
+      'p76, 56'.split(/,\s*/),
+      'Q44, 46'.split(/,\s*/),
+      'p74, 64'.split(/,\s*/),
+      'Q46, 45'.split(/,\s*/)
+    ]
+    case turn
+    when 1
+      return player.piece_color.eql?('white') ? notations[0] : notations[1]
+    when 2
+      return player.piece_color.eql?('white') ? notations[2] : notations[3]
+    when 3
+      return player.piece_color.eql?('white') ? notations[4] : notations[5]
+    when 4
+      return player.piece_color.eql?('white') ? notations[6] : notations[7]
+    end
   end
 
   def filter_move(move_notation, player_pieces, player)
@@ -119,10 +143,11 @@ class Game
   end
 
   def move_or_capture(player, move_notation, temp_piece)
+    other_player = player.piece_color.eql?('white') ? player2 : player1
     destination = piece_destination(move_notation)
     if empty_spot?(destination, board)
       piece_moving(move_notation, player, temp_piece)
-    elsif !board.squares[destination].occupied_by.color.eql?(player.piece_color)
+    elsif board.squares[destination].occupied_by.color.eql?(other_player.piece_color)
       piece_capturing(move_notation, player, temp_piece)
     end
   end
@@ -151,6 +176,25 @@ class Game
       move_notation = piece_position(player).split(/,\s*/)
       swap_places(move_notation, temp_piece)
     end
+  end
+
+  def moving_while_check(move_notation, player_pieces, player)
+    move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
+    destination = piece_destination(move_notation)
+    other_player = player.piece_color.eql?('white') ? player2 : player1
+    temp_board = Marshal.load(Marshal.dump(board))
+    while check?(temp_board, other_player)
+      move_or_capture(player, move_notation, temp_piece) if piece.type(move_notation).eql?('king')
+      temp_square = temp_board.squares[destination].occupied_by
+      temp_board.squares[destination].add_occupancy(temp_piece.occupied_by)
+      temp_board.squares[temp_piece.coords].add_occupancy(temp_square)
+      if check?(temp_board, other_player)
+        forfeit_move_msg
+        move_notation = piece_position(player).split(/,\s*/)
+        move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
+      end
+    end
+    return move_notation, temp_piece
   end
 
   def move_pawn_piece(move_notation, player, temp_piece)
@@ -225,9 +269,10 @@ class Game
   end
 
   def game_draw_status(other_player)
+    # binding.pry
     if stalemate?(board, other_player) || dead_position?(board)
       self.game_finished = true
-      no_winner_msg
+      stalemate_msg
       show_chess_board(board)
       return true
     end

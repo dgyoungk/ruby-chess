@@ -58,9 +58,9 @@ module Retrievable
       illegal_move_msg
       move_notation = piece_position(player).split(/,\s*/)
       new_dest = piece_destination(move_notation)
-      move_to_make = create_move(destination, temp_piece.coords)
+      move_to_make = create_move(new_dest, temp_piece.coords)
     end
-    move_notation
+    return move_notation
   end
 
   def create_move(destination, current, move = [])
@@ -101,18 +101,20 @@ module Retrievable
     count
   end
 
-  def update_difference(difference)
+  def update_difference(difference, new_diff = Array.new(2))
     if difference.first.zero?
-      difference[-1] = difference.last.negative? ? difference.last + 1 : difference.last - 1
+      new_diff[0] = difference.first
+      new_diff[-1] = difference.last.negative? ? difference.last + 1 : difference.last - 1
     elsif difference.last.zero?
-      difference[0] = difference.first.negative? ? difference.first + 1 : difference.first - 1
+      new_diff[-1] = difference.last
+      new_diff[0] = difference.first.negative? ? difference.first + 1 : difference.first - 1
     else
-      difference = [
+      new_diff = [
         difference.first.negative? ? difference.first + 1 : difference.first - 1,
         difference.last.negative? ? difference.last + 1 : difference.last - 1
       ]
     end
-    difference
+    return new_diff
   end
 
   # Chess game winning condition related methods

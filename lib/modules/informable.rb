@@ -66,7 +66,13 @@ module Informable
   def check_empty_spots(difference, count, board, starting, results = [])
     temp_dest = create_destination(starting, count)
     return results.push(empty_spot?(temp_dest, board)) if count.eql?(difference)
-    until count.eql?(difference)
+    # until count.eql?(difference)
+    #   occupation = empty_spot?(temp_dest, board)
+    #   return results.push(false) if !occupation
+    #   results.push(occupation)
+    #   count = update_count(count)
+    # end
+    until (count <=> difference).eql?(1)
       occupation = empty_spot?(temp_dest, board)
       return results.push(false) if !occupation
       results.push(occupation)
@@ -82,7 +88,7 @@ module Informable
     when 'pawn'
       return color_specific_captures(piece)
     else
-      return valid_captures(board, piece)
+      return valid_moves(board, piece)
     end
   end
 
@@ -100,11 +106,9 @@ module Informable
 
   def non_knight_check(board, piece)
     piece_moves = piece.occupied_by.possible_moves
-    # binding.pry
-    results = piece_moves.each_with_object([]) do |pair, arr|
+    allowed_moves = piece_moves.reject { |pair| board.squares[create_destination(piece.coords, pair)].nil? }
+    results = allowed_moves.each_with_object([]) do |pair, arr|
       temp_dest = create_destination(piece.coords, pair)
-      next if board.squares[temp_dest].nil?
-      # binding.pry
       temp_piece = board.squares[temp_dest].occupied_by
       if temp_piece.type.eql?('king') && !temp_piece.color.eql?(piece.occupied_by.color)
         arr.push(check_capture_path(temp_dest, piece, board, pair))
@@ -138,14 +142,28 @@ module Informable
     # don't worry about the other pieces rn, just figure out why the king moving to [1, 4] still returns a check
     # for a bishop that is at [4, 2]
     temp_board = Marshal.load(Marshal.dump(board))
-    stales = moves.each_with_object([]) do |pair, arr|
+    allowed_moves = moves.reject { |pair| temp_board.squares[create_destination(piece.coords, pair)].nil? }
+    stales = allowed_moves.each_with_object([]) do |pair, arr|
       temp_dest = create_destination(piece.coords, pair)
-      next if temp_board.squares[temp_dest].nil?
-      temp_square = temp_board.squares[temp_dest].occupied_by
-      temp_board.squares[temp_dest].occupied_by = piece.occupied_by
-      temp_board.squares[piece.coords].occupied_by = temp_square
+      temp_square = temp_board.squares[temp_dest]
+      temp_board.squares[temp_dest].add_occupancy(piece.occupied_by)
+      add_blank_spot(piece)
       move_results = rival_pieces.each_with_object([]) { |r_piece, r_arr| r_arr.push(piece_check(temp_board, r_piece)) }
+      puts %(#{piece.occupied_by.color} #{piece.occupied_by.type}, #{pair}) if move_results.any?(true)
       arr.push(move_results.any?(true))
     end
+    stales
+
+    # stales = moves.each_with_object([]) do |pair, arr|
+    #   temp_dest = create_destination(piece.coords, pair)
+    #   next if temp_board.squares[temp_dest].nil?
+    #   temp_square = temp_board.squares[temp_dest]
+    #   temp_board.squares[temp_dest].add_occupancy(piece.occupied_by)
+    #   # temp_board.squares[piece.coords].add_occupancy(temp_square)
+    #   add_blank_spot(piece)
+    #   move_results = rival_pieces.each_with_object([]) { |r_piece, r_arr| r_arr.push(piece_check(temp_board, r_piece)) }
+    #   puts %(#{piece.occupied_by.color} #{piece.occupied_by.type}, #{pair}) if move_results.any?(true)
+    #   arr.push(move_results.any?(true))
+    # end
   end
 end
