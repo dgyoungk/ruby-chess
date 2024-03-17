@@ -96,8 +96,8 @@ module Thinkable
 
   def check?(board, player, results = [])
     checking_pieces = piece_initials.values.reject { |type| type.eql?('king')  }
-    checking_pieces.each do |type|
-      pieces = pieces_on_board(board, player, type)
+    checking_pieces.each do |p_type|
+      pieces = pieces_on_board(board, player, p_type)
       piece_status = pieces.each_with_object([]) { |spot, arr| arr.push(piece_check(board, spot)) }
       results.push(piece_status.flatten)
     end

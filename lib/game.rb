@@ -183,16 +183,18 @@ class Game
     destination = piece_destination(move_notation)
     other_player = player.piece_color.eql?('white') ? player2 : player1
     temp_board = Marshal.load(Marshal.dump(board))
+    # binding.pry
     while check?(temp_board, other_player)
-      move_or_capture(player, move_notation, temp_piece) if piece_type(move_notation).eql?('king')
+      # move_or_capture(player, move_notation, temp_piece) if piece_type(move_notation).eql?('king')
       temp_square = temp_board.squares[destination].occupied_by
       temp_board.squares[destination].add_occupancy(temp_piece.occupied_by)
       temp_board.squares[temp_piece.coords].add_occupancy(temp_square)
-      if check?(temp_board, other_player)
-        forfeit_move_msg
-        move_notation = piece_position(player).split(/,\s*/)
-        move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
-      end
+      p check?(temp_board, other_player)
+      # if check?(temp_board, other_player)
+      #   forfeit_move_msg
+      #   move_notation = piece_position(player).split(/,\s*/)
+      #   move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
+      # end
     end
     return move_notation, temp_piece
   end

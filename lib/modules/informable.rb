@@ -66,17 +66,13 @@ module Informable
   def check_empty_spots(difference, count, board, starting, results = [])
     temp_dest = create_destination(starting, count)
     return results.push(empty_spot?(temp_dest, board)) if count.eql?(difference)
-    # until count.eql?(difference)
-    #   occupation = empty_spot?(temp_dest, board)
-    #   return results.push(false) if !occupation
-    #   results.push(occupation)
-    #   count = update_count(count)
-    # end
-    until (count <=> difference).eql?(1)
+    limit = count.any? { |half| half.negative? } ? -1 : 1
+    until (count <=> difference).eql?(limit)
       occupation = empty_spot?(temp_dest, board)
       return results.push(false) if !occupation
       results.push(occupation)
       count = update_count(count)
+      temp_dest = create_destination(starting, count)
     end
     results
   end
