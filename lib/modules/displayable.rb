@@ -77,7 +77,6 @@ module Displayable
     puts %(\nSince the pieces are colored red and green)
     puts %(Red will be white, and black will be green)
     puts %(Piece inital list: King: K, Queen: Q, Bishop: B, Rook: R, Knight: N, Pawn: p)
-    puts %(The squares are ordered 1-8, left-to-right, top-to-bottom)
   end
 
   def moving_info_msg

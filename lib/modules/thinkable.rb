@@ -70,7 +70,7 @@ module Thinkable
   end
 
   def king_stale?(board, king_piece, rival_pieces)
-    # binding.pry
+
     king_moves = valid_moves(board, king_piece)
     return true if king_moves.empty?
     k_results = check_for_stale(board, king_moves, king_piece, rival_pieces)
@@ -88,7 +88,7 @@ module Thinkable
   end
 
   def checkmate?(board, player, other_player)
-# binding.pry
+
     if check?(board, player)
       return stalemate?(board, other_player)
     end

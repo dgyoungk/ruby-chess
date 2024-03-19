@@ -3,8 +3,7 @@ require 'pry-byebug'
 require_relative 'board'
 require_relative 'player'
 require './lib/modules/chess_logic.rb'
-
-Dir["./lib/modules/*.rb"].each {|file| require file }
+require './lib/game_pieces/queen.rb'
 
 # './lib/game.rb'
 class Game
@@ -82,7 +81,6 @@ class Game
         moving_info_msg
         turn_msg(turn)
         move_piece(player, turn)
-        # binding.pry
         break if check_game_status(player)
       end
       self.turn += 1
@@ -92,33 +90,10 @@ class Game
   def move_piece(player, turn)
     player_pieces = board.squares.values.select { |spot| spot.occupied_by.color.eql?(player.piece_color) }
     move_notation = piece_position(player).split(/,\s*/)
-    # move_notation = sample_notations(player, turn)
     move_notation = square_occupancy(move_notation, player)
     move_notation, temp_piece = moving_while_check(move_notation, player_pieces, player)
+    move_notation, temp_piece = legal_move_review(player, move_notation, temp_piece, player_pieces)
     move_or_capture(player, move_notation, temp_piece)
-  end
-
-  def sample_notations(player, turn)
-    notations = [
-      'p75, 55'.split(/,\s*/),
-      'p24, 44'.split(/,\s*/),
-      'p55, 44'.split(/,\s*/),
-      'Q14, 44'.split(/,\s*/),
-      'p76, 56'.split(/,\s*/),
-      'Q44, 46'.split(/,\s*/),
-      'p74, 64'.split(/,\s*/),
-      'Q46, 45'.split(/,\s*/)
-    ]
-    case turn
-    when 1
-      return player.piece_color.eql?('white') ? notations[0] : notations[1]
-    when 2
-      return player.piece_color.eql?('white') ? notations[2] : notations[3]
-    when 3
-      return player.piece_color.eql?('white') ? notations[4] : notations[5]
-    when 4
-      return player.piece_color.eql?('white') ? notations[6] : notations[7]
-    end
   end
 
   def filter_move(move_notation, player_pieces, player)
@@ -133,7 +108,7 @@ class Game
 
   def square_occupancy(move_notation, player)
     destination = piece_destination(move_notation)
-    # binding.pry
+
     while board.squares[destination].occupied_by.color.eql?(player.piece_color)
       square_occupied_msg
       move_notation = piece_position(player).split(/,\s*/)
@@ -183,28 +158,46 @@ class Game
     destination = piece_destination(move_notation)
     other_player = player.piece_color.eql?('white') ? player2 : player1
     temp_board = Marshal.load(Marshal.dump(board))
-    # binding.pry
+
     while check?(temp_board, other_player)
-      # move_or_capture(player, move_notation, temp_piece) if piece_type(move_notation).eql?('king')
-      temp_square = temp_board.squares[destination].occupied_by
+      return move_notation, temp_piece if piece_type(move_notation).eql?('king')
       temp_board.squares[destination].add_occupancy(temp_piece.occupied_by)
-      temp_board.squares[temp_piece.coords].add_occupancy(temp_square)
-      p check?(temp_board, other_player)
-      # if check?(temp_board, other_player)
-      #   forfeit_move_msg
-      #   move_notation = piece_position(player).split(/,\s*/)
-      #   move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
-      # end
+      add_blank_spot(temp_piece)
+      if check?(temp_board, other_player)
+        forfeit_move_msg
+        move_notation = piece_position(player).split(/,\s*/)
+        move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
+        destination = piece_destination(move_notation)
+      end
+    end
+    return move_notation, temp_piece
+  end
+
+  # this method will prevent a player from making a move that will put the king piece in check
+  def legal_move_review(player, move_notation, temp_piece, player_pieces)
+    other_player = player.piece_color.eql?('white') ? player2 : player1
+    loop do
+      temp_board = Marshal.load(Marshal.dump(board))
+      piece_copy = Marshal.load(Marshal.dump(temp_piece))
+      destination = piece_destination(move_notation)
+      temp_square = temp_board.squares[destination].occupied_by
+      temp_board.squares[destination].add_occupancy(piece_copy.occupied_by)
+      temp_board.squares[piece_copy.coords].add_occupancy(temp_square)
+      break unless check?(temp_board, other_player)
+      check_move_msg
+      move_notation = piece_position(player).split(/,\s*/)
+      move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
     end
     return move_notation, temp_piece
   end
 
   def move_pawn_piece(move_notation, player, temp_piece)
-    # for pawns, it can only move 2 squares only if it hasn't moved from the initial spot yet
-    # so I have to check whether the piece's current coords are either 2 or 7, depending on the piece color
     starting_pos = player.piece_color.eql?('white') ? 7 : 2
     non_capture_moves = pawn_allowed_moves(starting_pos, temp_piece)
     move_notation = legal_pawn_not(move_notation, non_capture_moves, player, temp_piece)
+    # what are the conditions for promoting? I need the piece color and the row number
+    temp_piece = pawn_promote_review(player, temp_piece, move_notation)
+    # let's put this in both move and capture
     swap_places(move_notation, temp_piece)
   end
 
@@ -236,11 +229,10 @@ class Game
     capture_piece(move_notation, player, spot)
   end
 
-  # for pawns capturing, I have to check moves that only go in a digonal direction
-  # i.e. all moves that don't contain 0 or 2
   def pawn_capture(move_notation, player, temp_piece)
     capturing_moves = color_specific_captures(temp_piece)
     move_notation = legal_pawn_not(move_notation, capturing_moves, player, temp_piece)
+    temp_piece = pawn_promote_review(player, temp_piece, move_notation)
     capture_piece(move_notation, player, temp_piece)
   end
 
@@ -259,7 +251,7 @@ class Game
 
   def check_game_status(player)
     other_player = player.piece_color.eql?('white') ? player2 : player1
-    # binding.pry
+
     if checkmate?(board, player, other_player)
       self.game_finished = true
       winner_msg(player.name)
@@ -271,7 +263,7 @@ class Game
   end
 
   def game_draw_status(player)
-    # binding.pry
+
     if stalemate?(board, player) || dead_position?(board)
       self.game_finished = true
       stalemate_msg

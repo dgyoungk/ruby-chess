@@ -6,7 +6,7 @@ module Informable
   def refine_name(count)
     player_info_msg
     new_player_msg(count)
-    # binding.pry
+
     p_name = gets.chomp
     until p_name =~ /^[a-zA-Z0-9_]+$/
       blank_name_msg
@@ -36,6 +36,15 @@ module Informable
       move_to = gets.chomp
     end
     move_to
+  end
+
+  def pawn_promote_review(player, temp_piece, move_notation)
+    promoting_pos = player.piece_color.eql?('white') ? 1 : 8
+    temp_dest = piece_destination(move_notation)
+    if temp_dest.first.eql?(promoting_pos)
+      temp_piece.add_occupancy(Queen.new('queen', player.piece_color))
+    end
+    return temp_piece
   end
 
   def correct_piece(player_pieces, move_notation, player)
@@ -135,30 +144,16 @@ module Informable
   end
 
   def check_for_stale(board, moves, piece, rival_pieces)
-    # don't worry about the other pieces rn, just figure out why the king moving to [1, 4] still returns a check
-    # for a bishop that is at [4, 2]
     allowed_moves = moves.reject { |pair| board.squares[create_destination(piece.coords, pair)].nil? }
     stales = allowed_moves.each_with_object([]) do |pair, arr|
       temp_board = Marshal.load(Marshal.dump(board))
       temp_dest = create_destination(piece.coords, pair)
-      temp_square = temp_board.squares[temp_dest]
+      # temp_square = temp_board.squares[temp_dest]
       temp_board.squares[temp_dest].add_occupancy(piece.occupied_by)
       add_blank_spot(piece)
       move_results = rival_pieces.each_with_object([]) { |r_piece, r_arr| r_arr.push(piece_check(temp_board, r_piece)) }
       arr.push(move_results.any?(true))
     end
     stales
-
-    # stales = moves.each_with_object([]) do |pair, arr|
-    #   temp_dest = create_destination(piece.coords, pair)
-    #   next if temp_board.squares[temp_dest].nil?
-    #   temp_square = temp_board.squares[temp_dest]
-    #   temp_board.squares[temp_dest].add_occupancy(piece.occupied_by)
-    #   # temp_board.squares[piece.coords].add_occupancy(temp_square)
-    #   add_blank_spot(piece)
-    #   move_results = rival_pieces.each_with_object([]) { |r_piece, r_arr| r_arr.push(piece_check(temp_board, r_piece)) }
-    #   puts %(#{piece.occupied_by.color} #{piece.occupied_by.type}, #{pair}) if move_results.any?(true)
-    #   arr.push(move_results.any?(true))
-    # end
   end
 end
