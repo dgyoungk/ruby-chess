@@ -9,13 +9,11 @@ require './lib/game_pieces/queen.rb'
 class Game
   include ChessLogic
 
-  attr_accessor :player1, :player2, :board, :game_finished, :turn, :replay, :players
+  attr_accessor :board, :game_finished, :turn, :replay, :players
 
   attr_reader :player_colors
 
   def initialize
-    self.player1 = nil
-    self.player2 = nil
     self.board = Board.new
     self.game_finished = false
     self.turn = 1
@@ -44,23 +42,19 @@ class Game
 
   def create_player(count)
     # p_name = refine_name(count)
-    p_name = player1.nil? ? 'joe' : 'beck'
+    p_name = players.empty? ? 'joe' : 'beck'
     assign_player(p_name)
   end
 
   def assign_player(username)
-    return unless player1.nil? || player2.nil?
-    if player1.nil?
-      self.player1 = Player.new(username)
-      player1.designate_color(player_colors.first)
-      players.push(player1)
-      player_created_msg(player1)
-    else
-      self.player2 = Player.new(username)
-      player2.designate_color(player_colors.last)
-      players.push(player2)
-      player_created_msg(player2)
-    end
+    players.empty? ? new_player(username) : new_player(username)
+  end
+
+  def new_player(username)
+    newcomer = Player.new(username)
+    players.empty? ? newcomer.designate_color(player_colors.first) : newcomer.designate_color(player_colors.last)
+    players.push(newcomer)
+    player_created_msg(newcomer)
   end
 
   def start_game
@@ -75,7 +69,6 @@ class Game
   def play_once
     until game_over?
       players.each do |player|
-        # other_player = player.piece_color.eql?('white') ? player2 : player1
         break if game_draw_status(player)
         show_chess_board(self.board)
         moving_info_msg
@@ -108,7 +101,6 @@ class Game
 
   def square_occupancy(move_notation, player)
     destination = piece_destination(move_notation)
-
     while board.squares[destination].occupied_by.color.eql?(player.piece_color)
       square_occupied_msg
       move_notation = piece_position(player).split(/,\s*/)
@@ -118,7 +110,7 @@ class Game
   end
 
   def move_or_capture(player, move_notation, temp_piece)
-    other_player = player.piece_color.eql?('white') ? player2 : player1
+    other_player = player.piece_color.eql?('white') ? players.last : players.first
     destination = piece_destination(move_notation)
     if empty_spot?(destination, board)
       piece_moving(move_notation, player, temp_piece)
@@ -142,7 +134,7 @@ class Game
 
   def move_king_piece(move_notation, player, temp_piece)
     destination = piece_destination(move_notation)
-    other_player = player.piece_color.eql?('white') ? player2 : player1
+    other_player = player.piece_color.eql?('white') ? players.last : players.first
     swap_places(move_notation, temp_piece)
     while check?(board, other_player)
       check_move_msg
@@ -155,34 +147,32 @@ class Game
 
   def moving_while_check(move_notation, player_pieces, player)
     move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
-    destination = piece_destination(move_notation)
-    other_player = player.piece_color.eql?('white') ? player2 : player1
-    temp_board = Marshal.load(Marshal.dump(board))
-
-    while check?(temp_board, other_player)
+    other_player = player.piece_color.eql?('white') ? players.last : players.first
+    # binding.pry
+    loop do
       return move_notation, temp_piece if piece_type(move_notation).eql?('king')
-      temp_board.squares[destination].add_occupancy(temp_piece.occupied_by)
-      add_blank_spot(temp_piece)
-      if check?(temp_board, other_player)
-        forfeit_move_msg
-        move_notation = piece_position(player).split(/,\s*/)
-        move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
-        destination = piece_destination(move_notation)
-      end
+      temp_board = Marshal.load(Marshal.dump(board))
+      piece_copy = Marshal.load(Marshal.dump(temp_piece))
+      destination = piece_destination(move_notation)
+      pseudo_swap(temp_board, piece_copy, destination)
+      break unless check?(temp_board, other_player)
+      forfeit_move_msg
+      move_notation = piece_position(player).split(/,\s*/)
+      move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
     end
     return move_notation, temp_piece
   end
 
   # this method will prevent a player from making a move that will put the king piece in check
   def legal_move_review(player, move_notation, temp_piece, player_pieces)
-    other_player = player.piece_color.eql?('white') ? player2 : player1
+    other_player = player.piece_color.eql?('white') ? players.last : players.first
+    # binding.pry
     loop do
+      return move_notation, temp_piece if piece_type(move_notation).eql?('king')
       temp_board = Marshal.load(Marshal.dump(board))
       piece_copy = Marshal.load(Marshal.dump(temp_piece))
       destination = piece_destination(move_notation)
-      temp_square = temp_board.squares[destination].occupied_by
-      temp_board.squares[destination].add_occupancy(piece_copy.occupied_by)
-      temp_board.squares[piece_copy.coords].add_occupancy(temp_square)
+      pseudo_swap(temp_board, piece_copy, destination)
       break unless check?(temp_board, other_player)
       check_move_msg
       move_notation = piece_position(player).split(/,\s*/)
@@ -191,13 +181,18 @@ class Game
     return move_notation, temp_piece
   end
 
+  def pseudo_swap(temp_board, piece_copy, destination)
+    temp_square = temp_board.squares[destination].occupied_by
+    temp_board.squares[destination].add_occupancy(piece_copy.occupied_by)
+    temp_board.squares[piece_copy.coords].add_occupancy(temp_square)
+  end
+
   def move_pawn_piece(move_notation, player, temp_piece)
     starting_pos = player.piece_color.eql?('white') ? 7 : 2
     non_capture_moves = pawn_allowed_moves(starting_pos, temp_piece)
     move_notation = legal_pawn_not(move_notation, non_capture_moves, player, temp_piece)
     # what are the conditions for promoting? I need the piece color and the row number
     temp_piece = pawn_promote_review(player, temp_piece, move_notation)
-    # let's put this in both move and capture
     swap_places(move_notation, temp_piece)
   end
 
@@ -250,8 +245,8 @@ class Game
   end
 
   def check_game_status(player)
-    other_player = player.piece_color.eql?('white') ? player2 : player1
-
+    other_player = player.piece_color.eql?('white') ? players.last : players.first
+    # binding.pry
     if checkmate?(board, player, other_player)
       self.game_finished = true
       winner_msg(player.name)
@@ -263,7 +258,6 @@ class Game
   end
 
   def game_draw_status(player)
-
     if stalemate?(board, player) || dead_position?(board)
       self.game_finished = true
       stalemate_msg

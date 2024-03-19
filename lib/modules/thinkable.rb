@@ -70,7 +70,6 @@ module Thinkable
   end
 
   def king_stale?(board, king_piece, rival_pieces)
-
     king_moves = valid_moves(board, king_piece)
     return true if king_moves.empty?
     k_results = check_for_stale(board, king_moves, king_piece, rival_pieces)
