@@ -75,13 +75,13 @@ module Displayable
 
   def info_msg
     puts %(\nSince the pieces are colored red and green)
-    puts %(Red will be white, and black will be green)
-    puts %(Piece inital list: King: K, Queen: Q, Bishop: B, Rook: R, Knight: N, Pawn: p)
+    puts %(Red is White, and Green is Black)
   end
 
   def moving_info_msg
     puts %(\nTo move a piece, use this notation: (initial, row/column), (destination row, column))
     puts %(e.g. p74, 54 to move a pawn at [7,4] to [5, 4])
+    puts %(Piece inital list: King: K, Queen: Q, Bishop: B, Rook: R, Knight: N, Pawn: p)
   end
 
   def turn_msg(count)
@@ -132,8 +132,6 @@ module Displayable
   def stalemate_msg
     puts %(\nThe game has come to a stalemate, it's a draw)
   end
-
-
 
   def replay_msg
     print %(\nWould you like to play again? (y/n): )
