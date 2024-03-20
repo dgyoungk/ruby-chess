@@ -1,7 +1,6 @@
 require 'pry-byebug'
 # './lib/modules/thinkable.rb'
 module Thinkable
-
   def decision_verified?(p_choice)
     %w[y n].include?(p_choice)
   end
@@ -26,7 +25,6 @@ module Thinkable
     return spot.occupied_by.type.eql?(piece_type(move_notation))
   end
 
-  # methods that help chess pieces make a legal move i.e. checking moving path
   def empty_spot?(coords, board)
     return board.squares[coords].occupied_by.color.eql?('none')
   end
@@ -87,7 +85,6 @@ module Thinkable
   end
 
   def checkmate?(board, player, other_player)
-
     if check?(board, player)
       return stalemate?(board, other_player)
     end

@@ -27,12 +27,12 @@ module Informable
     decision
   end
 
-  def piece_position(player)
-    move_msg(player)
+  def piece_position(player, alt_colors)
+    move_msg(player, alt_colors)
     move_to = gets.chomp
     until format_verified?(move_to)
       error_msg
-      move_msg(player)
+      move_msg(player, alt_colors)
       move_to = gets.chomp
     end
     move_to
@@ -51,7 +51,7 @@ module Informable
     temp_piece = selected_piece(player_pieces, move_notation)
     until temp_piece.instance_of? Node
       incorrect_piece_msg
-      move_notation = piece_position(player).split(/,\s*/)
+      move_notation = piece_position(player, alt_colors).split(/,\s*/)
       temp_piece = selected_piece(player_pieces, move_notation)
     end
     return move_notation, temp_piece

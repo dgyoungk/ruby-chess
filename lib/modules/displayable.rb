@@ -28,7 +28,7 @@ module Displayable
 
   def print_square(square_color, node, coords)
     if (coords.last).eql?(8)
-      puts %(#{bg_colorize(node.occupied_by.visual, square_color)}\s\s#{coords.first})
+      puts %(#{bg_colorize(node.occupied_by.visual, square_color)}\s\s\s#{coords.first})
     else
       print %(#{bg_colorize(node.occupied_by.visual, square_color)})
     end
@@ -62,8 +62,8 @@ module Displayable
     puts %(Not a valid username, try again)
   end
 
-  def player_created_msg(player)
-    puts %(New player created: #{player.name}, piece color: #{player.piece_color})
+  def player_created_msg(player, alt_colors)
+    puts %(New player created: #{player.name}, piece color: #{alt_colors[player.piece_color]})
   end
 
   def rules_msg
@@ -71,11 +71,6 @@ module Displayable
     puts %(Corner the opponent's king piece to get a checkmate!)
     puts %(All pieces except the Knight piece cannot move over other pieces)
     puts %(You can only move one piece per turn)
-  end
-
-  def info_msg
-    puts %(\nSince the pieces are colored red and green)
-    puts %(Red is White, and Green is Black)
   end
 
   def moving_info_msg
@@ -89,8 +84,8 @@ module Displayable
   end
 
   # method to get the coords the player wants to move the piece to
-  def move_msg(player)
-    print %(#{player.name}'s move: )
+  def move_msg(player, alt_colors)
+    print %(#{alt_colors[player.piece_color]}'s move: )
   end
 
   def error_msg
@@ -121,8 +116,8 @@ module Displayable
     puts %(That square is already occupied, try another position)
   end
 
-  def chess_check_msg(player)
-    puts %(\n#{player.name} declares check on the King)
+  def chess_check_msg(player, other_player, alt_colors)
+    puts %(\n#{alt_colors[player.piece_color]} declares check on #{alt_colors[other_player.piece_color]}'s King)
   end
 
   def winner_msg(name)

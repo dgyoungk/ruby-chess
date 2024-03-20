@@ -3,7 +3,7 @@
 module Playable
   def move_piece(player, turn, board, other_player)
     player_pieces = board.squares.values.select { |spot| spot.occupied_by.color.eql?(player.piece_color) }
-    move_notation = piece_position(player).split(/,\s*/)
+    move_notation = piece_position(player, alt_colors).split(/,\s*/)
     move_notation = square_occupancy(move_notation, player, board)
     move_notation, temp_piece = moving_while_check(move_notation, player_pieces, player, board, other_player)
     move_notation, temp_piece = legal_move_review(player, move_notation, temp_piece, player_pieces, board, other_player)
@@ -14,7 +14,7 @@ module Playable
     move_notation, temp_piece = correct_piece(player_pieces, move_notation, player)
     until legal_move?(move_notation, temp_piece)
       illegal_move_msg
-      move_notation = piece_position(player).split(/,\s*/)
+      move_notation = piece_position(player, alt_colors).split(/,\s*/)
       move_notation, temp_piece = correct_piece(player_pieces, move_notation, player)
     end
     return move_notation, temp_piece
@@ -24,7 +24,7 @@ module Playable
     destination = piece_destination(move_notation)
     while board.squares[destination].occupied_by.color.eql?(player.piece_color)
       square_occupied_msg
-      move_notation = piece_position(player).split(/,\s*/)
+      move_notation = piece_position(player, alt_colors).split(/,\s*/)
       destination = piece_destination(move_notation)
     end
     move_notation
@@ -59,7 +59,7 @@ module Playable
       check_move_msg
       temp_piece.add_occupancy(board.squares[destination].occupied_by)
       add_blank_spot(board.squares[destination])
-      move_notation = piece_position(player).split(/,\s*/)
+      move_notation = piece_position(player, alt_colors).split(/,\s*/)
       swap_places(move_notation, temp_piece, board)
     end
   end
@@ -76,7 +76,7 @@ module Playable
   def move_other_piece(move_notation, player, temp_piece, board)
     until clear_path?(move_notation, player, board)
       blocked_path_msg
-      move_notation = piece_position(player).split(/,\s*/)
+      move_notation = piece_position(player, alt_colors).split(/,\s*/)
     end
     destination = piece_destination(move_notation)
     swap_places(move_notation, temp_piece, board)
@@ -109,7 +109,7 @@ module Playable
   def non_knight_capture(move_notation, player, spot, board)
     until clear_path?(move_notation, player, board)
       blocked_path_msg
-      move_notation = piece_position(player).split(/,\s*/)
+      move_notation = piece_position(player, alt_colors).split(/,\s*/)
     end
     capture_piece(move_notation, player, spot, board)
   end
@@ -131,7 +131,7 @@ module Playable
       pseudo_swap(temp_board, piece_copy, destination)
       break unless check?(temp_board, other_player)
       forfeit_move_msg
-      move_notation = piece_position(player).split(/,\s*/)
+      move_notation = piece_position(player, alt_colors).split(/,\s*/)
       move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
     end
     return move_notation, temp_piece
@@ -147,7 +147,7 @@ module Playable
       pseudo_swap(temp_board, piece_copy, destination)
       break unless check?(temp_board, other_player)
       check_move_msg
-      move_notation = piece_position(player).split(/,\s*/)
+      move_notation = piece_position(player, alt_colors).split(/,\s*/)
       move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
     end
     return move_notation, temp_piece

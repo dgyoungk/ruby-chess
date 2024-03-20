@@ -56,7 +56,7 @@ module Retrievable
     move_to_make = create_move(destination, temp_piece.coords)
     until moves.include?(move_to_make)
       illegal_move_msg
-      move_notation = piece_position(player).split(/,\s*/)
+      move_notation = piece_position(player, alt_colors).split(/,\s*/)
       new_dest = piece_destination(move_notation)
       move_to_make = create_move(new_dest, temp_piece.coords)
     end

@@ -1,17 +1,15 @@
-require 'pry-byebug'
-
+# './lib/game.rb'
 require_relative 'board'
 require_relative 'player'
 require './lib/modules/chess_logic.rb'
 require './lib/game_pieces/queen.rb'
 
-# './lib/game.rb'
 class Game
   include ChessLogic
 
   attr_accessor :board, :game_finished, :turn, :replay, :players
 
-  attr_reader :player_colors
+  attr_reader :player_colors, :alt_colors
 
   def initialize
     self.board = Board.new
@@ -20,15 +18,14 @@ class Game
     self.replay = true
     self.players = []
     @player_colors = %w[white black]
+    @alt_colors = { 'white' => 'Red', 'black' => 'Green' }
   end
 
   def game_setup
     welcome_msg
     2.times { |n| create_player(n) }
     rules_msg
-    # sleep(5)
-    info_msg
-    # sleep(5)
+    sleep 3
     start_game
   end
 
@@ -41,8 +38,7 @@ class Game
   end
 
   def create_player(count)
-    # p_name = refine_name(count)
-    p_name = players.empty? ? 'joe' : 'beck'
+    p_name = refine_name(count)
     new_player(p_name)
   end
 
@@ -50,13 +46,14 @@ class Game
     newcomer = Player.new(username)
     players.empty? ? newcomer.designate_color(player_colors.first) : newcomer.designate_color(player_colors.last)
     players.push(newcomer)
-    player_created_msg(newcomer)
+    player_created_msg(newcomer, alt_colors)
+    sleep 1
   end
 
   def start_game
     while keep_playing?
       play_once
-      sleep(2)
+      sleep 2
       prompt_replay
       game_end
     end
@@ -72,6 +69,7 @@ class Game
         turn_msg(turn)
         move_piece(player, turn, board, other_player)
         break if check_game_status(player, other_player)
+        sleep 1
       end
       self.turn += 1
     end
@@ -79,21 +77,19 @@ class Game
 
   def check_game_status(player, other_player)
     if checkmate?(board, player, other_player)
-      self.game_finished = true
       winner_msg(player.name)
       show_chess_board(board)
-      return true
+      return self.game_finished = true
     elsif check?(board, player)
-      chess_check_msg(player)
+      chess_check_msg(player, other_player, alt_colors)
     end
   end
 
   def game_draw_status(player)
     if stalemate?(board, player) || dead_position?(board)
-      self.game_finished = true
       stalemate_msg
       show_chess_board(board)
-      return true
+      return self.game_finished = true
     end
   end
 
