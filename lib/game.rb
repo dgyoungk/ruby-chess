@@ -25,7 +25,7 @@ class Game
     welcome_msg
     2.times { |n| create_player(n) }
     rules_msg
-    sleep 3
+    # sleep 3
     start_game
   end
 
@@ -38,7 +38,8 @@ class Game
   end
 
   def create_player(count)
-    p_name = refine_name(count)
+    # p_name = refine_name(count)
+    p_name = players.empty? ? 'joe' : 'beck'
     new_player(p_name)
   end
 

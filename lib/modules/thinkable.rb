@@ -40,18 +40,17 @@ module Thinkable
     player_pieces = board.squares.values.select { |spot| spot.occupied_by.color.eql?(player.piece_color) }
     player_pieces.each do |spot|
       if piece_matched?(move_notation, spot)
-        if (caller[0][/`.*'/][1..-2]).include?('move')
-          return check_path(destination, spot, board)
-        else
-          return check_capture_path(destination, spot, board)
-        end
+        return check_path(destination, spot, board) if (caller[0][/`.*'/][1..-2]).include?('move')
+        return check_capture_path(destination, spot, board)
       end
     end
   end
 
   # game draw condition checking
   def dead_position?(board)
-    return board.squares.values.select { |spot| spot.occupied_by.color.eql?('none') }.size.eql?(62)
+    empty_squares = board.squares.values.select { |spot| spot.occupied_by.color.eql?('none') }
+    kings = board.squares.values.select { |node| node.occupied_by.type.eql?('king') }
+    return empty_squares.size.eql?(62) && kings.size.eql?(2)
   end
 
   def stalemate?(board, player)
@@ -60,11 +59,8 @@ module Thinkable
     king_piece = player_king_piece(player_pieces)
     other_pieces = temp_board.squares.values.reject { |spot| spot.occupied_by.color.eql?(player.piece_color) }
     rival_pieces = opponent_pieces(other_pieces)
-    if king_stale?(temp_board, king_piece, rival_pieces)
-      return pieces_stale?(temp_board, player_pieces, rival_pieces)
-    else
-      return false
-    end
+    king_status = king_stale?(temp_board, king_piece, rival_pieces)
+    return king_status ? pieces_stale?(temp_board, player_pieces, rival_pieces) : false
   end
 
   def king_stale?(board, king_piece, rival_pieces)

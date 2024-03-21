@@ -2,20 +2,19 @@
 # './lib/modules/playable.rb'
 module Playable
   def move_piece(player, turn, board, other_player)
-    player_pieces = board.squares.values.select { |spot| spot.occupied_by.color.eql?(player.piece_color) }
+    moving_pieces = player_pieces(board, player)
     move_notation = piece_position(player, alt_colors).split(/,\s*/)
     move_notation = square_occupancy(move_notation, player, board)
-    move_notation, temp_piece = moving_while_check(move_notation, player_pieces, player, board, other_player)
-    move_notation, temp_piece = legal_move_review(player, move_notation, temp_piece, player_pieces, board, other_player)
+    move_notation, temp_piece = legal_move_review(player, move_notation, moving_pieces, board, other_player)
     move_or_capture(player, move_notation, temp_piece, board, other_player)
   end
 
-  def filter_move(move_notation, player_pieces, player)
-    move_notation, temp_piece = correct_piece(player_pieces, move_notation, player)
+  def filter_move(move_notation, moving_pieces, player)
+    move_notation, temp_piece = correct_piece(moving_pieces, move_notation, player)
     until legal_move?(move_notation, temp_piece)
       illegal_move_msg
       move_notation = piece_position(player, alt_colors).split(/,\s*/)
-      move_notation, temp_piece = correct_piece(player_pieces, move_notation, player)
+      move_notation, temp_piece = correct_piece(moving_pieces, move_notation, player)
     end
     return move_notation, temp_piece
   end
@@ -41,26 +40,12 @@ module Playable
 
   def piece_moving(move_notation, player, temp_piece, board)
     case temp_piece.occupied_by.type
-    when 'knight'
+    when 'knight', 'king'
       swap_places(move_notation, temp_piece, board)
-    when 'king'
-      move_king_piece(move_notation, player, temp_piece, board)
     when 'pawn'
       move_pawn_piece(move_notation, player, temp_piece, board)
     else
       move_other_piece(move_notation, player, temp_piece, board)
-    end
-  end
-
-  def move_king_piece(move_notation, player, temp_piece, board, other_player)
-    destination = piece_destination(move_notation)
-    swap_places(move_notation, temp_piece)
-    while check?(board, other_player)
-      check_move_msg
-      temp_piece.add_occupancy(board.squares[destination].occupied_by)
-      add_blank_spot(board.squares[destination])
-      move_notation = piece_position(player, alt_colors).split(/,\s*/)
-      swap_places(move_notation, temp_piece, board)
     end
   end
 
@@ -121,26 +106,10 @@ module Playable
     swap_places(move_notation, spot, board)
   end
 
-  def moving_while_check(move_notation, player_pieces, player, board, other_player)
-    move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
-    loop do
-      return move_notation, temp_piece if piece_type(move_notation).eql?('king')
-      temp_board = Marshal.load(Marshal.dump(board))
-      piece_copy = Marshal.load(Marshal.dump(temp_piece))
-      destination = piece_destination(move_notation)
-      pseudo_swap(temp_board, piece_copy, destination)
-      break unless check?(temp_board, other_player)
-      forfeit_move_msg
-      move_notation = piece_position(player, alt_colors).split(/,\s*/)
-      move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
-    end
-    return move_notation, temp_piece
-  end
-
   # this method will prevent a player from making a move that will put the king piece in check
-  def legal_move_review(player, move_notation, temp_piece, player_pieces, board, other_player)
+  def legal_move_review(player, move_notation, moving_pieces, board, other_player)
+    move_notation, temp_piece = filter_move(move_notation, moving_pieces, player)
     loop do
-      return move_notation, temp_piece if piece_type(move_notation).eql?('king')
       temp_board = Marshal.load(Marshal.dump(board))
       piece_copy = Marshal.load(Marshal.dump(temp_piece))
       destination = piece_destination(move_notation)
@@ -148,7 +117,7 @@ module Playable
       break unless check?(temp_board, other_player)
       check_move_msg
       move_notation = piece_position(player, alt_colors).split(/,\s*/)
-      move_notation, temp_piece = filter_move(move_notation, player_pieces, player)
+      move_notation, temp_piece = filter_move(move_notation, moving_pieces, player)
     end
     return move_notation, temp_piece
   end

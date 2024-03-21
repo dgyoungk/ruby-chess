@@ -108,10 +108,6 @@ module Displayable
     puts %(That move would put your King in check, try another move)
   end
 
-  def forfeit_move_msg
-    puts %(That move leaves your King in check, try another move)
-  end
-
   def square_occupied_msg
     puts %(That square is already occupied, try another position)
   end
