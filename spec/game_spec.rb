@@ -196,4 +196,26 @@ describe Game do
       end
     end
   end
+
+  describe '#stalemate?' do
+    let(:temp_board) { Marshal.load(Marshal.dump(dummy.board)) }
+    let(:player_pieces) { dummy.board.squares.values.select { |node| node.occupied_by.color.eql?(p1.piece_color) } }
+    let(:other_pieces) { dummy.board.squares.values.reject { |node| node.occupied_by.color.eql?(p1.piece_color) } }
+    let(:rival_pieces) { other_pieces.reject { |node| node.occupied_by.type.eql?('king') || node.occupied_by.color.eql?('none') } }
+    let(:king_piece) { player_pieces.select { |piece| piece.occupied_by.type.eql?('king') } }
+    context 'when #king_stale? returns false' do
+      before do
+        allow(dummy).to receive(:object_copy).with(dummy.board).and_return temp_board
+        allow(dummy).to receive(:player_pieces).with(dummy.board, p1).and_return player_pieces
+        allow(dummy).to receive(:player_king_piece).with(player_pieces).and_return king_piece
+        allow(dummy).to receive(:opponent_pieces).with(other_pieces).and_return rival_pieces
+        allow(dummy).to receive(:king_stale?).with(temp_board, king_piece, rival_pieces).and_return false
+      end
+      it '#pieces_stale? is not triggered' do
+        expect(dummy).not_to receive(:pieces_stale?).with(temp_board, player_pieces, rival_pieces)
+        dummy.stalemate?(dummy.board, p1)
+        # TODO: PICKUP FROM HERE
+      end
+    end
+  end
 end

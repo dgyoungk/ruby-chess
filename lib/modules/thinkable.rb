@@ -54,7 +54,7 @@ module Thinkable
   end
 
   def stalemate?(board, player)
-    temp_board = Marshal.load(Marshal.dump(board))
+    temp_board = object_copy(board)
     player_pieces = player_pieces(temp_board, player)
     king_piece = player_king_piece(player_pieces)
     other_pieces = temp_board.squares.values.reject { |spot| spot.occupied_by.color.eql?(player.piece_color) }

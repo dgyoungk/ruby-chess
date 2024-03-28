@@ -132,4 +132,8 @@ module Retrievable
       piece.type.eql?('king') || piece.color.eql?('none')
     end
   end
+
+  def object_copy(obj)
+    return Marshal.load(Marshal.dump(obj))
+  end
 end

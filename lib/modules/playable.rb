@@ -110,8 +110,8 @@ module Playable
   def legal_move_review(player, move_notation, moving_pieces, board, other_player)
     move_notation, temp_piece = filter_move(move_notation, moving_pieces, player)
     loop do
-      temp_board = Marshal.load(Marshal.dump(board))
-      piece_copy = Marshal.load(Marshal.dump(temp_piece))
+      temp_board = object_copy(board)
+      piece_copy = object_copy(temp_piece)
       destination = piece_destination(move_notation)
       pseudo_swap(temp_board, piece_copy, destination)
       break unless check?(temp_board, other_player)

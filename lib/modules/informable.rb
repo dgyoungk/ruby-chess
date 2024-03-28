@@ -145,7 +145,7 @@ module Informable
   def check_for_stale(board, moves, piece, rival_pieces)
     allowed_moves = moves.reject { |pair| board.squares[create_destination(piece.coords, pair)].nil? }
     stales = allowed_moves.each_with_object([]) do |pair, arr|
-      temp_board = Marshal.load(Marshal.dump(board))
+      temp_board = object_copy(board)
       temp_dest = create_destination(piece.coords, pair)
       # temp_square = temp_board.squares[temp_dest]
       temp_board.squares[temp_dest].add_occupancy(piece.occupied_by)
