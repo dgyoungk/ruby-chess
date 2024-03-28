@@ -38,23 +38,23 @@ class Game
   end
 
   def create_player(count)
-    # p_name = refine_name(count)
-    p_name = players.empty? ? 'joe' : 'beck'
-    new_player(p_name)
+    p_name = refine_name(count)
+    # p_name = players.empty? ? 'joe' : 'beck'
+    store_new_player(p_name)
   end
 
-  def new_player(username)
+  def store_new_player(username)
     newcomer = Player.new(username)
-    players.empty? ? newcomer.designate_color(player_colors.first) : newcomer.designate_color(player_colors.last)
-    players.push(newcomer)
+    self.players.empty? ? newcomer.designate_color(player_colors.first) : newcomer.designate_color(player_colors.last)
+    self.players.push(newcomer)
     player_created_msg(newcomer, alt_colors)
-    sleep 1
+    # sleep 1
   end
 
   def start_game
     while keep_playing?
       play_once
-      sleep 2
+      # sleep 2
       prompt_replay
       game_end
     end
@@ -70,7 +70,7 @@ class Game
         turn_msg(turn)
         move_piece(player, turn, board, other_player)
         break if check_game_status(player, other_player)
-        sleep 1
+        # sleep 1
       end
       self.turn += 1
     end

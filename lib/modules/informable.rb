@@ -6,7 +6,6 @@ module Informable
   def refine_name(count)
     player_info_msg
     new_player_msg(count)
-
     p_name = gets.chomp
     until p_name =~ /^[a-zA-Z0-9_]+$/
       blank_name_msg
