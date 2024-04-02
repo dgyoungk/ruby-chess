@@ -51,6 +51,10 @@ module Retrievable
     return board.squares.values.select { |spot| spot.occupied_by.color.eql?(player.piece_color) }
   end
 
+  def other_pieces(board, player)
+    return board.squares.values.reject { |spot| spot.occupied_by.color.eql?(player.piece_color) }
+  end
+
   def legal_pawn_not(move_notation, moves, player, temp_piece)
     destination = piece_destination(move_notation)
     move_to_make = create_move(destination, temp_piece.coords)

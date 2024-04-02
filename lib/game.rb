@@ -25,7 +25,7 @@ class Game
     welcome_msg
     2.times { |n| create_player(n) }
     rules_msg
-    # sleep 3
+    sleep 3
     start_game
   end
 
@@ -48,13 +48,13 @@ class Game
     self.players.empty? ? newcomer.designate_color(player_colors.first) : newcomer.designate_color(player_colors.last)
     self.players.push(newcomer)
     player_created_msg(newcomer, alt_colors)
-    # sleep 1
+    sleep 1
   end
 
   def start_game
     while keep_playing?
       play_once
-      # sleep 2
+      sleep 2
       prompt_replay
       game_end
     end
@@ -70,7 +70,7 @@ class Game
         turn_msg(turn)
         move_piece(player, turn, board, other_player)
         break if check_game_status(player, other_player)
-        # sleep 1
+        sleep 1
       end
       self.turn += 1
     end

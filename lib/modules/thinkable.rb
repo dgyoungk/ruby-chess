@@ -57,7 +57,7 @@ module Thinkable
     temp_board = object_copy(board)
     player_pieces = player_pieces(temp_board, player)
     king_piece = player_king_piece(player_pieces)
-    other_pieces = temp_board.squares.values.reject { |spot| spot.occupied_by.color.eql?(player.piece_color) }
+    other_pieces = other_pieces(temp_board, player)
     rival_pieces = opponent_pieces(other_pieces)
     king_status = king_stale?(temp_board, king_piece, rival_pieces)
     return king_status ? pieces_stale?(temp_board, player_pieces, rival_pieces) : false
