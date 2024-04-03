@@ -39,13 +39,12 @@ class Game
 
   def create_player(count)
     p_name = refine_name(count)
-    # p_name = players.empty? ? 'joe' : 'beck'
-    store_new_player(p_name)
+    store_new_player(p_name, count)
   end
 
-  def store_new_player(username)
+  def store_new_player(username, count)
     newcomer = Player.new(username)
-    self.players.empty? ? newcomer.designate_color(player_colors.first) : newcomer.designate_color(player_colors.last)
+    newcomer.designate_color(player_colors[count])
     self.players.push(newcomer)
     player_created_msg(newcomer, alt_colors)
     sleep 1
