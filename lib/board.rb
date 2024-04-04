@@ -1,5 +1,7 @@
+# frozen_string_literal: false
+
 require_relative 'node'
-require './lib/modules/chess_logic.rb'
+require './lib/modules/chess_logic'
 
 # './lib/board.rb'
 class Board
@@ -30,17 +32,16 @@ class Board
   end
 
   def attach_board_edges
-    squares.each do |coord, node|
+    squares.each_key do |coord|
       possible_edges.each do |pair|
-        unless squares[[coord.first + pair.first, coord.last + pair.last]].nil?
-          add_edge(coord, [coord.first + pair.first, coord.last + pair.last])
-        end
+        spot = [coord.first + pair.first, coord.last + pair.last]
+        add_edge(coord, spot) unless squares[spot].nil?
       end
     end
   end
 
   def clean_board_edges
-    squares.each { |coords, node| node.neighbours.uniq! }
+    squares.each_value { |node| node.neighbours.uniq! }
   end
 
   def add_edge(node1, node2)
@@ -54,9 +55,9 @@ class Board
       when 1
         add_ranked_pieces(coords, node, 'black')
       when 2
-        add_pawns(coords, node, 'black')
+        add_pawns(node, 'black')
       when 7
-        add_pawns(coords, node, 'white')
+        add_pawns(node, 'white')
       when 8
         add_ranked_pieces(coords, node, 'white')
       else

@@ -1,6 +1,9 @@
+# frozen_string_literal: false
+
 # './lib/node.rb'
 class Node
   attr_accessor :coords, :neighbours, :occupied_by
+
   def initialize(coords)
     self.coords = coords
     self.neighbours = []
@@ -8,7 +11,7 @@ class Node
   end
 
   def add_neighbour(adjacent)
-    self.neighbours << adjacent
+    neighbours << adjacent
   end
 
   def add_occupancy(chess_piece)

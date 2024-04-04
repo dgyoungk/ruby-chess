@@ -1,9 +1,11 @@
-# './lib/game.rb'
+# frozen_string_literal: false
+
 require_relative 'board'
 require_relative 'player'
-require './lib/modules/chess_logic.rb'
-require './lib/game_pieces/queen.rb'
+require './lib/modules/chess_logic'
+require './lib/game_pieces/queen'
 
+# './lib/game.rb'
 class Game
   include ChessLogic
 
@@ -30,11 +32,11 @@ class Game
   end
 
   def keep_playing?
-    return replay
+    replay
   end
 
   def game_over?
-    return game_finished
+    game_finished
   end
 
   def create_player(count)
@@ -45,7 +47,7 @@ class Game
   def store_new_player(username, count)
     newcomer = Player.new(username)
     newcomer.designate_color(player_colors[count])
-    self.players.push(newcomer)
+    players.push(newcomer)
     player_created_msg(newcomer, alt_colors)
     sleep 1
   end
@@ -64,12 +66,12 @@ class Game
       players.each do |player|
         other_player = player.piece_color.eql?('white') ? players.last : players.first
         break if game_draw_status(player)
-        show_chess_board(self.board)
+
+        show_chess_board(board)
         moving_info_msg
         turn_msg(turn)
-        move_piece(player, turn, board, other_player)
+        move_piece(player, board, other_player)
         break if check_game_status(player, other_player)
-        sleep 1
       end
       self.turn += 1
     end
@@ -79,18 +81,19 @@ class Game
     if checkmate?(board, player, other_player)
       winner_msg(player.name)
       show_chess_board(board)
-      return self.game_finished = true
+      self.game_finished = true
     elsif check?(board, player)
       chess_check_msg(player, other_player, alt_colors)
+      sleep 1
     end
   end
 
   def game_draw_status(player)
-    if stalemate?(board, player) || dead_position?(board)
-      stalemate_msg
-      show_chess_board(board)
-      return self.game_finished = true
-    end
+    return unless stalemate?(board, player) || dead_position?(board)
+
+    stalemate_msg
+    show_chess_board(board)
+    self.game_finished = true
   end
 
   def prompt_replay
@@ -105,7 +108,7 @@ class Game
   def game_reset
     self.game_finished = false
     self.turn = 1
-    players.each { |player| player.reset_captured }
-    self.board.occupy_board
+    players.each(&:reset_captured)
+    board.occupy_board
   end
 end

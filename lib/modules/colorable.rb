@@ -1,19 +1,21 @@
+# frozen_string_literal: false
+
 # './lib/modules/colorable.rb'
 module Colorable
   # method that houses all the unicode representation of the chess pieces
   def black_chess_pieces
-  black_visuals = {
-    'kingblack' => %(\s#{fg_colorize("\u265A", chess_board_colors[:green])}),
-    'queenblack' => "\s#{fg_colorize("\u265B", chess_board_colors[:green])}",
-    'rookblack' => "\s#{fg_colorize("\u265C", chess_board_colors[:green])}",
-    'bishopblack' => "\s#{fg_colorize("\u265D", chess_board_colors[:green])}",
-    'knightblack' => "\s#{fg_colorize("\u265E", chess_board_colors[:green])}",
-    'pawnblack' => "\s#{fg_colorize("\u265F", chess_board_colors[:green])}"
-  }
+    {
+      'kingblack' => %(\s#{fg_colorize("\u265A", chess_board_colors[:green])}),
+      'queenblack' => "\s#{fg_colorize("\u265B", chess_board_colors[:green])}",
+      'rookblack' => "\s#{fg_colorize("\u265C", chess_board_colors[:green])}",
+      'bishopblack' => "\s#{fg_colorize("\u265D", chess_board_colors[:green])}",
+      'knightblack' => "\s#{fg_colorize("\u265E", chess_board_colors[:green])}",
+      'pawnblack' => "\s#{fg_colorize("\u265F", chess_board_colors[:green])}"
+    }
   end
 
   def white_chess_pieces
-    white_visuals = {
+    {
       'kingwhite' => "\s#{fg_colorize("\u265A", chess_board_colors[:red])}",
       'queenwhite' => "\s#{fg_colorize("\u265B", chess_board_colors[:red])}",
       'rookwhite' => "\s#{fg_colorize("\u265C", chess_board_colors[:red])}",
@@ -33,7 +35,7 @@ module Colorable
   end
 
   def chess_board_colors
-    square_colors = {
+    {
       white: '255;255;255',
       black: '0;0;0',
       green: '0;255;0',

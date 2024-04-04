@@ -1,17 +1,18 @@
+# frozen_string_literal: false
+
 # './lib/modules/displayable.rb'
 module Displayable
   def show_chess_board(board)
     colors = chess_board_colors
     show_top_border
     board.squares.each do |coords, node|
-      print_odd_row(coords, node, colors) if (coords.first).odd?
-      print_even_row(coords, node, colors) if (coords.first).even?
+      print_odd_row(coords, node, colors) if coords.first.odd?
+      print_even_row(coords, node, colors) if coords.first.even?
     end
-    show_bottom_border
   end
 
   def print_odd_row(coords, node, colors)
-    if (coords.last).even?
+    if coords.last.even?
       print_square(colors[:black], node, coords)
     else
       print_square(colors[:white], node, coords)
@@ -19,7 +20,7 @@ module Displayable
   end
 
   def print_even_row(coords, node, colors)
-    if (coords.last).even?
+    if coords.last.even?
       print_square(colors[:white], node, coords)
     else
       print_square(colors[:black], node, coords)
@@ -27,23 +28,26 @@ module Displayable
   end
 
   def print_square(square_color, node, coords)
-    if (coords.last).eql?(8)
-      puts %(#{bg_colorize(node.occupied_by.visual, square_color)}\s\s\s#{coords.first})
+    if coords.last.eql?(8)
+      puts %(#{bg_colorize(node.occupied_by.visual, square_color)})
+    elsif coords.last.eql?(1)
+      print %(#{coords.first}\s\s\s#{bg_colorize(node.occupied_by.visual, square_color)})
     else
-      print %(#{bg_colorize(node.occupied_by.visual, square_color)})
+      print bg_colorize(node.occupied_by.visual, square_color)
     end
   end
 
   def show_top_border
-    print "\n---------------------------\n"
-    8.times { |n| print (n + 1).eql?(8) ? %(\s#{n + 1}\s\n) : %(\s#{n + 1}\s) }
-    24.times { print "\u{1FB7B}" }
-    puts
-  end
-
-  def show_bottom_border
-    24.times { print "\u{1FB76}" }
-    puts
+    print "\n----------------------------\n"
+    8.times do |n|
+      if (n + 1).eql?(1)
+        print %(\s\s\s\s\s#{n + 1}\s)
+      elsif (n + 1).eql?(8)
+        print %(\s#{n + 1}\s\n\n)
+      else
+        print %(\s#{n + 1}\s)
+      end
+    end
   end
 
   def welcome_msg
@@ -83,7 +87,6 @@ module Displayable
     puts %(\n\t\tTurn #{count}:)
   end
 
-  # method to get the coords the player wants to move the piece to
   def move_msg(player, alt_colors)
     print %(#{alt_colors[player.piece_color]}'s move: )
   end

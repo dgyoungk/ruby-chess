@@ -1,4 +1,6 @@
-require './lib/modules/retrievable.rb'
+# frozen_string_literal: false
+
+require './lib/modules/retrievable'
 
 # './lib/game_pieces/chess_piece.rb'
 class ChessPiece
@@ -7,7 +9,7 @@ class ChessPiece
   attr_accessor :type, :color, :visual
   attr_reader :possible_moves
 
-  def initialize(possible_moves = [], type, color)
+  def initialize(type, color, possible_moves = [])
     @possible_moves = possible_moves
     self.type = type
     self.color = color
@@ -17,5 +19,4 @@ class ChessPiece
   def add_visual(visual_str)
     self.visual = visual_str
   end
-
 end

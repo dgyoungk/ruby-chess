@@ -1,3 +1,5 @@
+# frozen_string_literal: false
+
 # './lib/player.rb'
 class Player
   attr_accessor :name, :piece_color, :captured
@@ -13,7 +15,7 @@ class Player
   end
 
   def update_captured(piece)
-    self.captured.push(piece)
+    captured.push(piece)
   end
 
   def reset_captured

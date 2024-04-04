@@ -1,9 +1,11 @@
+# frozen_string_literal: false
+
 # './lib/spec/game_spec.rb'
-require './lib/game.rb'
-require './lib/board.rb'
-require './lib/player.rb'
-require './lib/game_pieces/chess_piece.rb'
-require './lib/modules/chess_logic.rb'
+require './lib/game'
+require './lib/board'
+require './lib/player'
+require './lib/game_pieces/chess_piece'
+require './lib/modules/chess_logic'
 
 describe Game do
   # include ChessLogic
@@ -70,7 +72,7 @@ describe Game do
     end
 
     describe '#play_once' do
-    let(:turn) { 1 }
+      let(:turn) { 1 }
       before do
         allow(dummy).to receive(:moving_info_msg)
         allow(dummy).to receive(:turn_msg).with(turn)
@@ -88,7 +90,7 @@ describe Game do
           dummy.play_once
         end
         it 'does not trigger #move_piece' do
-          expect(dummy).not_to receive(:move_piece).with(p1, turn, dummy.board, p2)
+          expect(dummy).not_to receive(:move_piece).with(p1, dummy.board, p2)
           dummy.play_once
         end
         it 'does not trigger #check_game_status' do
@@ -165,7 +167,7 @@ describe Game do
     end
 
     describe '#game_draw_status' do
-      context 'when #stalemate? and dead_position? return false' do
+      context 'when #stalemate? and #dead_position? return false' do
         before do
           allow(dummy).to receive(:stalemate?).with(dummy.board, p1).and_return false
           allow(dummy).to receive(:dead_position?).with(dummy.board).and_return false
@@ -179,7 +181,7 @@ describe Game do
           dummy.game_draw_status(p1)
         end
       end
-      context 'when either #stalemate? or dead_position? return true' do
+      context 'when either #stalemate? or #dead_position? return true' do
         before do
           allow(dummy).to receive(:dead_position?).with(dummy.board).and_return true
           allow(dummy).to receive(:stalemate_msg)
@@ -193,6 +195,18 @@ describe Game do
           expect(dummy).to receive(:stalemate_msg)
           dummy.game_draw_status(p1)
         end
+      end
+    end
+  end
+
+  describe '#game_reset' do
+    context 'when method executes' do
+      before do
+        allow(dummy.board).to receive(:occupy_board)
+      end
+      it 'triggers #reset_captured' do
+        dummy.players.each { |player| expect(player).to receive(:reset_captured) }
+        dummy.game_reset
       end
     end
   end

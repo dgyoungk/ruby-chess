@@ -1,7 +1,9 @@
+# frozen_string_literal: false
+
 # module to house all the gameplay methods
 # './lib/modules/playable.rb'
 module Playable
-  def move_piece(player, turn, board, other_player)
+  def move_piece(player, board, other_player)
     moving_pieces = player_pieces(board, player)
     move_notation = piece_position(player, alt_colors).split(/,\s*/)
     move_notation = square_occupancy(move_notation, player, board)
@@ -16,7 +18,7 @@ module Playable
       move_notation = piece_position(player, alt_colors).split(/,\s*/)
       move_notation, temp_piece = correct_piece(moving_pieces, move_notation, player)
     end
-    return move_notation, temp_piece
+    [move_notation, temp_piece]
   end
 
   def square_occupancy(move_notation, player, board)
@@ -63,7 +65,6 @@ module Playable
       blocked_path_msg
       move_notation = piece_position(player, alt_colors).split(/,\s*/)
     end
-    destination = piece_destination(move_notation)
     swap_places(move_notation, temp_piece, board)
   end
 
@@ -110,16 +111,18 @@ module Playable
   def legal_move_review(player, move_notation, moving_pieces, board, other_player)
     move_notation, temp_piece = filter_move(move_notation, moving_pieces, player)
     loop do
+      break if temp_piece.occupied_by.type.eql?('king')
       temp_board = object_copy(board)
       piece_copy = object_copy(temp_piece)
       destination = piece_destination(move_notation)
       pseudo_swap(temp_board, piece_copy, destination)
       break unless check?(temp_board, other_player)
+
       check_move_msg
       move_notation = piece_position(player, alt_colors).split(/,\s*/)
       move_notation, temp_piece = filter_move(move_notation, moving_pieces, player)
     end
-    return move_notation, temp_piece
+    [move_notation, temp_piece]
   end
 
   def pseudo_swap(temp_board, piece_copy, destination)

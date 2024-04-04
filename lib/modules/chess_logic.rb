@@ -1,3 +1,5 @@
+# frozen_string_literal: false
+
 # namespace for all the modules that will be used
 require_relative 'displayable'
 require_relative 'retrievable'
