@@ -66,12 +66,12 @@ class Game
       players.each do |player|
         other_player = player.piece_color.eql?('white') ? players.last : players.first
         break if game_draw_status(player)
-
         show_chess_board(board)
         moving_info_msg
         turn_msg(turn)
         move_piece(player, board, other_player)
         break if check_game_status(player, other_player)
+        sleep 1
       end
       self.turn += 1
     end
@@ -84,7 +84,6 @@ class Game
       self.game_finished = true
     elsif check?(board, player)
       chess_check_msg(player, other_player, alt_colors)
-      sleep 1
     end
   end
 
