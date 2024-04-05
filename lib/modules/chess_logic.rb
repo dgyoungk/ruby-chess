@@ -5,11 +5,14 @@ Dir['./lib/modules/*.rb'].sort.each { |file| require file unless file.include?('
 
 # './lib/modules/chess_logic.rb'
 module ChessLogic
+  include BasicSerializable
+  include Colorable
   include Displayable
-  include Retrievable
   include Informable
+  include Movable
   include Occupiable
   include Playable
-  include BasicSerializable
   include Promptable
+  include Retrievable
+  include Thinkable
 end

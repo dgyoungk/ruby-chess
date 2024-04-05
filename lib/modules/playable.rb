@@ -114,9 +114,7 @@ module Playable
       break if temp_piece.occupied_by.type.eql?('king')
 
       temp_board = object_copy(board)
-      piece_copy = object_copy(temp_piece)
-      destination = piece_destination(move_notation)
-      pseudo_swap(temp_board, piece_copy, destination)
+      perform_temp_move(temp_board, temp_piece, move_notation)
       break unless check?(temp_board, other_player)
 
       check_move_msg
@@ -126,9 +124,14 @@ module Playable
     [move_notation, temp_piece]
   end
 
+  def perform_temp_move(temp_board, temp_piece, move_notation)
+    piece_copy = object_copy(temp_piece)
+    destination = piece_destination(move_notation)
+    pseudo_swap(temp_board, piece_copy, destination)
+  end
+
   def pseudo_swap(temp_board, piece_copy, destination)
-    temp_square = temp_board.squares[destination].occupied_by
     temp_board.squares[destination].add_occupancy(piece_copy.occupied_by)
-    temp_board.squares[piece_copy.coords].add_occupancy(temp_square)
+    add_blank_spot(piece_copy)
   end
 end

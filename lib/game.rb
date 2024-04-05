@@ -52,7 +52,7 @@ class Game
   def start_game(match)
     while keep_playing?
       play_once(match)
-      sleep 2
+      sleep 1
       prompt_replay if keep_playing?
       game_end
     end
