@@ -27,7 +27,12 @@ class Game
 
   def game_setup
     welcome_msg
+    create_save_dir
     prompt_game_load
+  end
+
+  def create_save_dir
+    Dir.mkdir 'saves' unless Dir.exist? 'saves'
   end
 
   def prompt_game_load
