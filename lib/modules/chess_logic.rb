@@ -1,11 +1,7 @@
 # frozen_string_literal: false
 
 # namespace for all the modules that will be used
-require_relative 'displayable'
-require_relative 'retrievable'
-require_relative 'informable'
-require_relative 'occupiable'
-require_relative 'playable'
+Dir['./lib/modules/*.rb'].sort.each { |file| require file unless file.include?('logic') }
 
 # './lib/modules/chess_logic.rb'
 module ChessLogic
@@ -14,4 +10,6 @@ module ChessLogic
   include Informable
   include Occupiable
   include Playable
+  include BasicSerializable
+  include Promptable
 end

@@ -112,6 +112,7 @@ module Playable
     move_notation, temp_piece = filter_move(move_notation, moving_pieces, player)
     loop do
       break if temp_piece.occupied_by.type.eql?('king')
+
       temp_board = object_copy(board)
       piece_copy = object_copy(temp_piece)
       destination = piece_destination(move_notation)

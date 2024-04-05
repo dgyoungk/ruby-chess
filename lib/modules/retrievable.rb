@@ -31,6 +31,12 @@ module Retrievable
     }
   end
 
+  def opponent(piece_color, players)
+    return players.last if piece_color.eql?('white')
+
+    players.first
+  end
+
   def piece_type(move_notation)
     piece_initials[move_notation.first.chars.first]
   end

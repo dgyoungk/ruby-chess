@@ -29,7 +29,7 @@ module Displayable
 
   def print_square(square_color, node, coords)
     if coords.last.eql?(8)
-      puts %(#{bg_colorize(node.occupied_by.visual, square_color)})
+      puts bg_colorize(node.occupied_by.visual, square_color)
     elsif coords.last.eql?(1)
       print %(#{coords.first}\s\s\s#{bg_colorize(node.occupied_by.visual, square_color)})
     else
@@ -133,5 +133,21 @@ module Displayable
 
   def goodbye_msg
     puts %(\nThanks for playing, till next time!)
+  end
+
+  def continuation_msg
+    print %(Continue playing? (y/n): )
+  end
+
+  def game_save_msg
+    print %(Would you like to save the game? (y/n): )
+  end
+
+  def open_game_msg
+    print %(There's a saved game available, load the game? (y/n): )
+  end
+
+  def saved_msg
+    puts %(Game saved!)
   end
 end

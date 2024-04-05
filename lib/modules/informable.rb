@@ -5,40 +5,6 @@ require_relative 'thinkable'
 module Informable
   include Thinkable
 
-  def refine_name(count)
-    player_info_msg
-    new_player_msg(count)
-    p_name = gets.chomp
-    until p_name =~ /^[a-zA-Z0-9_]+$/
-      blank_name_msg
-      new_player_msg(count)
-      p_name = gets.chomp
-    end
-    p_name
-  end
-
-  def user_decision
-    replay_msg
-    decision = gets.chomp.downcase
-    until decision_verified?(decision)
-      error_msg
-      replay_msg
-      decision = gets.chomp.downcase
-    end
-    decision
-  end
-
-  def piece_position(player, alt_colors)
-    move_msg(player, alt_colors)
-    move_to = gets.chomp
-    until format_verified?(move_to)
-      error_msg
-      move_msg(player, alt_colors)
-      move_to = gets.chomp
-    end
-    move_to
-  end
-
   def pawn_promote_review(player, temp_piece, move_notation)
     promoting_pos = player.piece_color.eql?('white') ? 1 : 8
     temp_dest = piece_destination(move_notation)
@@ -78,10 +44,7 @@ module Informable
 
     limit = count.any?(&:negative?) ? -1 : 1
     until (count <=> difference).eql?(limit)
-      occupation = empty_spot?(temp_dest, board)
-      return results.push(false) unless occupation
-
-      results.push(occupation)
+      results.push(empty_spot?(temp_dest, board))
       count = update_count(count)
       temp_dest = create_destination(starting, count)
     end
