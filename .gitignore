@@ -3,3 +3,6 @@
 
 # ignore testing file
 testing*
+
+# ignore game save dir
+saves*
