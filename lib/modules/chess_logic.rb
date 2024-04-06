@@ -8,12 +8,12 @@ module ChessLogic
   include BasicSerializable
   include Colorable
   include Displayable
+  include Fileable
   include Informable
   include Movable
   include Occupiable
   include Playable
   include Promptable
   include Retrievable
-  include Fileable
   include Thinkable
 end
