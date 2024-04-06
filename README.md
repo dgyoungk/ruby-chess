@@ -10,9 +10,10 @@
     - Player
 
 ### Modules
-    - BasicSerializable: inspired from Hangman project, allows state-saving to text file using Marshal
+    - BasicSerializable: allows state-saving to text file using _Marshal_
     - Colorable: houses chess board and chess piece coloring methods
     - Displayable: houses all game display methods
+    - Fileable: houses all game saving and game loading methods
     - Informable: houses gameplay logic methods
     - Movable: houses gameplay logic methods
     - Occupiable: houses methods that initialize the chess board with pieces
@@ -21,6 +22,12 @@
     - Retrievable: houses methods that retrieve gameplay info
     - Thinkable: houses all the predicate methods involved in gameplay logic
     - ChessLogic: namespace module for all the modules
-    
+
+### Playing the game:
+    - clone this repo to your desired folder
+    - open your command line and cd into the folder where the repo is
+    - run _ruby lib/main.rb_
+
+
 
 Author: Daniel Kwon 2024
