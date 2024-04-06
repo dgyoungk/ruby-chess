@@ -1,6 +1,5 @@
 # frozen_string_literal: false
 
-require 'pry-byebug'
 # './lib/modules/thinkable.rb'
 module Thinkable
   def decision_verified?(p_choice)

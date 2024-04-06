@@ -1,10 +1,7 @@
 # frozen_string_literal: false
 
-require_relative 'thinkable'
 # './lib/modules/informable.rb'
 module Informable
-  include Thinkable
-
   def pawn_promote_review(player, temp_piece, move_notation)
     promoting_pos = player.piece_color.eql?('white') ? 1 : 8
     temp_dest = piece_destination(move_notation)
@@ -119,6 +116,17 @@ module Informable
       add_blank_spot(piece)
       move_results = rival_pieces.each_with_object([]) { |r_piece, r_arr| r_arr.push(piece_check(temp_board, r_piece)) }
       arr.push(move_results.any?(true))
+    end
+  end
+
+  def check_game_status(player, players, board)
+    other_player = opponent(player.piece_color, players)
+    if checkmate?(board, player, other_player)
+      winner_msg(player.name)
+      show_chess_board(board)
+      self.game_finished = true
+    elsif check?(board, player)
+      chess_check_msg(player, other_player, alt_colors)
     end
   end
 end

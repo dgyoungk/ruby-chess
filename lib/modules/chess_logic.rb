@@ -14,5 +14,6 @@ module ChessLogic
   include Playable
   include Promptable
   include Retrievable
+  include Fileable
   include Thinkable
 end
