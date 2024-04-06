@@ -24,9 +24,12 @@
     - ChessLogic: namespace module for all the modules
 
 ### Playing the game:
-    - clone this repo to your desired folder
-    - open your command line and cd into the folder where the repo is
-    - run ruby lib/main.rb
+    - follow this [link](https://replit.com/@dgyoungk/ruby-chess)
+    - sign in using your google accounts
+    - click the Fork & Run button on the left
+    - click Fork Repl to confirm
+    - click Run at the top
+    - have fun! 
 
 
 
