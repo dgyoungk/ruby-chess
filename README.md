@@ -10,11 +10,8 @@
     - Player
 
 ### Modules
-<<<<<<<<< Temporary merge branch 1
     - BasicSerializable: allows state-saving to text file using _Marshal_
-=========
     - BasicSerializable: allows state-saving to text file using Marshal
->>>>>>>>> Temporary merge branch 2
     - Colorable: houses chess board and chess piece coloring methods
     - Displayable: houses all game display methods
     - Fileable: houses all game saving and game loading methods
@@ -28,7 +25,7 @@
     - ChessLogic: namespace module for all the modules
 
 ### Playing the game:
-    - follow this [link](https://replit.com/@dgyoungk/ruby-chess)
+    - follow this link: https://replit.com/@dgyoungk/ruby-chess
     - sign in using your google accounts
     - click the Fork & Run button on the left
     - click Fork Repl to confirm
